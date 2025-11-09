@@ -553,29 +553,4 @@
                                                             Commission: {(price * commission / 100).toLocaleString('fr-FR')} €
                                                         </div>
                                                         <div className={`text-sm font-medium ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
-                                                            {isProfit ? 'Bénéfice' : 'Perte'}: {roi.toLocaleString('fr-FR', {
-                                                                minimumFractionDigits: 0,
-                                                                maximumFractionDigits: 0
-                                                            })} € ({roiPercentage >= 0 ? '+' : ''}{roiPercentage.toLocaleString('fr-FR', {
-                                                                minimumFractionDigits: 1,
-                                                                maximumFractionDigits: 1
-                                                            })}%)
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+                                                            {isProfit ? 'Bénéfice' : 'P
