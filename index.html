@@ -56,6 +56,15 @@
             </svg>
         );
 
+        const BarChart3 = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v18h18"></path>
+                <path d="M18 17V9"></path>
+                <path d="M13 17V5"></path>
+                <path d="M8 17v-3"></path>
+            </svg>
+        );
+
         function App() {
             const [horses, setHorses] = useState([]);
             const [selectedHorse, setSelectedHorse] = useState(null);
@@ -65,6 +74,7 @@
             const [commission, setCommission] = useState(10);
             const [customPrice, setCustomPrice] = useState('');
             const [showAnalytics, setShowAnalytics] = useState(false);
+            const [showDashboard, setShowDashboard] = useState(false);
 
             useEffect(() => {
                 const savedHorses = JSON.parse(localStorage.getItem('horses') || '[]');
@@ -166,409 +176,644 @@
                 return colors[index % colors.length];
             };
 
+            const getGlobalStats = () => {
+                const totalInvested = horses.reduce((sum, horse) => sum + getTotalExpenses(horse), 0);
+                const avgPerHorse = horses.length > 0 ? totalInvested / horses.length : 0;
+                const mostExpensiveHorse = horses.length > 0 
+                    ? horses.reduce((max, horse) => getTotalExpenses(horse) > getTotalExpenses(max) ? horse : max, horses[0])
+                    : null;
+                
+                return {
+                    totalInvested,
+                    avgPerHorse,
+                    mostExpensiveHorse,
+                    horseCount: horses.length
+                };
+            };
+
             const scenariosPrices = [15000, 16000, 17000, 18000, 19000, 20000];
 
             return (
                 <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
                     <div className="max-w-7xl mx-auto">
                         <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-                            <h1 className="text-4xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                                <DollarSign size={40} />
-                                Horse Tracking - Performance
-                            </h1>
-                            <p className="text-gray-600">Suivez vos dépenses et calculez votre ROI</p>
+                            <div className="flex justify-between items-center flex-wrap gap-4">
+                                <div>
+                                    <h1 className="text-4xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                                        <DollarSign size={40} />
+                                        Horse Tracking - Performance
+                                    </h1>
+                                    <p className="text-gray-600">Suivez vos dépenses et calculez votre ROI</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowDashboard(!showDashboard)}
+                                    className={`px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${
+                                        showDashboard 
+                                            ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    <BarChart3 size={20} />
+                                    {showDashboard ? 'Voir les chevaux' : 'Tableau de bord'}
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Colonne gauche - Liste des chevaux */}
-                            <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4">Mes Chevaux</h2>
-                                
-                                <div className="flex gap-2 mb-4">
-                                    <input
-                                        type="text"
-                                        placeholder="Nom du cheval"
-                                        value={horseName}
-                                        onChange={(e) => setHorseName(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && addHorse()}
-                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    />
-                                    <button
-                                        onClick={addHorse}
-                                        className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition"
-                                    >
-                                        <Plus size={24} />
-                                    </button>
-                                </div>
-
-                                <div className="space-y-2">
-                                    {horses.map(horse => (
-                                        <div
-                                            key={horse.id}
-                                            className={`p-4 rounded-lg border-2 cursor-pointer transition ${
-                                                selectedHorse?.id === horse.id
-                                                    ? 'border-indigo-600 bg-indigo-50'
-                                                    : 'border-gray-200 hover:border-indigo-300'
-                                            }`}
-                                            onClick={() => setSelectedHorse(horse)}
-                                        >
-                                            <div className="flex justify-between items-center">
-                                                <div>
-                                                    <h3 className="font-semibold text-gray-800">{horse.name}</h3>
-                                                    <p className="text-sm text-gray-600">
-                                                        {getTotalExpenses(horse).toLocaleString('fr-FR')} €
-                                                    </p>
-                                                </div>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        deleteHorse(horse.id);
-                                                    }}
-                                                    className="text-red-500 hover:text-red-700"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Colonne milieu - Dépenses / Analytics */}
-                            <div className="bg-white rounded-xl shadow-lg p-6">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-2xl font-bold text-gray-800">
-                                        {selectedHorse ? `Dépenses - ${selectedHorse.name}` : 'Sélectionnez un cheval'}
-                                    </h2>
-                                    {selectedHorse && (
+                        {!showDashboard && (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Colonne gauche - Liste des chevaux */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Mes Chevaux</h2>
+                                    
+                                    <div className="flex gap-2 mb-4">
+                                        <input
+                                            type="text"
+                                            placeholder="Nom du cheval"
+                                            value={horseName}
+                                            onChange={(e) => setHorseName(e.target.value)}
+                                            onKeyPress={(e) => e.key === 'Enter' && addHorse()}
+                                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        />
                                         <button
-                                            onClick={() => setShowAnalytics(!showAnalytics)}
-                                            className={`p-2 rounded-lg transition ${
-                                                showAnalytics ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                            title="Afficher les analytics"
+                                            onClick={addHorse}
+                                            className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition"
                                         >
-                                            <PieChart size={20} />
+                                            <Plus size={24} />
                                         </button>
-                                    )}
-                                </div>
+                                    </div>
 
-                                {selectedHorse && !showAnalytics && (
-                                    <>
-                                        <div className="mb-4">
-                                            <div className="flex gap-2 mb-2">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Catégorie"
-                                                    value={expenseName}
-                                                    onChange={(e) => setExpenseName(e.target.value)}
-                                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    placeholder="Montant"
-                                                    value={expenseAmount}
-                                                    onChange={(e) => setExpenseAmount(e.target.value)}
-                                                    onKeyPress={(e) => e.key === 'Enter' && addExpense()}
-                                                    className="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                                />
-                                            </div>
-                                            <button
-                                                onClick={addExpense}
-                                                className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
+                                    <div className="space-y-2">
+                                        {horses.map(horse => (
+                                            <div
+                                                key={horse.id}
+                                                className={`p-4 rounded-lg border-2 cursor-pointer transition ${
+                                                    selectedHorse?.id === horse.id
+                                                        ? 'border-indigo-600 bg-indigo-50'
+                                                        : 'border-gray-200 hover:border-indigo-300'
+                                                }`}
+                                                onClick={() => setSelectedHorse(horse)}
                                             >
-                                                <Plus size={20} />
-                                                Ajouter une dépense
-                                            </button>
-                                        </div>
-
-                                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                                            {selectedHorse.expenses.map(expense => (
-                                                <div
-                                                    key={expense.id}
-                                                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
-                                                >
+                                                <div className="flex justify-between items-center">
                                                     <div>
-                                                        <p className="font-medium text-gray-800">{expense.name}</p>
-                                                        <p className="text-sm text-gray-600">{expense.amount.toLocaleString('fr-FR')} €</p>
+                                                        <h3 className="font-semibold text-gray-800">{horse.name}</h3>
+                                                        <p className="text-sm text-gray-600">
+                                                            {getTotalExpenses(horse).toLocaleString('fr-FR')} €
+                                                        </p>
                                                     </div>
                                                     <button
-                                                        onClick={() => deleteExpense(expense.id)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            deleteHorse(horse.id);
+                                                        }}
                                                         className="text-red-500 hover:text-red-700"
                                                     >
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>
-                                            ))}
-                                        </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
 
-                                        <div className="mt-4 pt-4 border-t-2 border-gray-200">
-                                            <div className="flex justify-between items-center text-xl font-bold">
-                                                <span>Total</span>
-                                                <span className="text-indigo-600">
-                                                    {getTotalExpenses(selectedHorse).toLocaleString('fr-FR')} €
-                                                </span>
+                                {/* Colonne milieu - Dépenses / Analytics */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h2 className="text-2xl font-bold text-gray-800">
+                                            {selectedHorse ? `Dépenses - ${selectedHorse.name}` : 'Sélectionnez un cheval'}
+                                        </h2>
+                                        {selectedHorse && (
+                                            <button
+                                                onClick={() => setShowAnalytics(!showAnalytics)}
+                                                className={`p-2 rounded-lg transition ${
+                                                    showAnalytics ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                }`}
+                                                title="Afficher les analytics"
+                                            >
+                                                <PieChart size={20} />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {selectedHorse && !showAnalytics && (
+                                        <>
+                                            <div className="mb-4">
+                                                <div className="flex gap-2 mb-2">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Catégorie"
+                                                        value={expenseName}
+                                                        onChange={(e) => setExpenseName(e.target.value)}
+                                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        placeholder="Montant"
+                                                        value={expenseAmount}
+                                                        onChange={(e) => setExpenseAmount(e.target.value)}
+                                                        onKeyPress={(e) => e.key === 'Enter' && addExpense()}
+                                                        className="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                    />
+                                                </div>
+                                                <button
+                                                    onClick={addExpense}
+                                                    className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
+                                                >
+                                                    <Plus size={20} />
+                                                    Ajouter une dépense
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                                                {selectedHorse.expenses.map(expense => (
+                                                    <div
+                                                        key={expense.id}
+                                                        className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                                                    >
+                                                        <div>
+                                                            <p className="font-medium text-gray-800">{expense.name}</p>
+                                                            <p className="text-sm text-gray-600">{expense.amount.toLocaleString('fr-FR')} €</p>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => deleteExpense(expense.id)}
+                                                            className="text-red-500 hover:text-red-700"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="mt-4 pt-4 border-t-2 border-gray-200">
+                                                <div className="flex justify-between items-center text-xl font-bold">
+                                                    <span>Total</span>
+                                                    <span className="text-indigo-600">
+                                                        {getTotalExpenses(selectedHorse).toLocaleString('fr-FR')} €
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {selectedHorse && showAnalytics && (
+                                        <div className="space-y-4">
+                                            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-lg">
+                                                <h3 className="font-bold text-gray-800 mb-4 text-lg">Répartition des dépenses</h3>
+                                                
+                                                {/* Graphique en barres */}
+                                                <div className="space-y-3">
+                                                    {getCategoryBreakdown(selectedHorse).map((category, index) => {
+                                                        const percentage = (category.amount / getTotalExpenses(selectedHorse)) * 100;
+                                                        return (
+                                                            <div key={category.name} className="space-y-1">
+                                                                <div className="flex justify-between items-center text-sm">
+                                                                    <span className="font-medium text-gray-700">{category.name}</span>
+                                                                    <span className="text-gray-600">{category.amount.toLocaleString('fr-FR')} € ({percentage.toFixed(1)}%)</span>
+                                                                </div>
+                                                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                                                    <div
+                                                                        className="h-3 rounded-full transition-all duration-500"
+                                                                        style={{
+                                                                            width: `${percentage}%`,
+                                                                            backgroundColor: getColorForIndex(index)
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                {/* Statistiques */}
+                                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="bg-white p-3 rounded-lg">
+                                                            <p className="text-xs text-gray-600 mb-1">Nombre de catégories</p>
+                                                            <p className="text-xl font-bold text-indigo-600">
+                                                                {getCategoryBreakdown(selectedHorse).length}
+                                                            </p>
+                                                        </div>
+                                                        <div className="bg-white p-3 rounded-lg">
+                                                            <p className="text-xs text-gray-600 mb-1">Dépense moyenne</p>
+                                                            <p className="text-xl font-bold text-indigo-600">
+                                                                {(getTotalExpenses(selectedHorse) / selectedHorse.expenses.length).toLocaleString('fr-FR', {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0
+                                                                })} €
+                                                            </p>
+                                                        </div>
+                                                        <div className="bg-white p-3 rounded-lg">
+                                                            <p className="text-xs text-gray-600 mb-1">Plus grosse catégorie</p>
+                                                            <p className="text-sm font-bold text-indigo-600">
+                                                                {getCategoryBreakdown(selectedHorse)[0]?.name || '-'}
+                                                            </p>
+                                                        </div>
+                                                        <div className="bg-white p-3 rounded-lg">
+                                                            <p className="text-xs text-gray-600 mb-1">Montant</p>
+                                                            <p className="text-xl font-bold text-indigo-600">
+                                                                {getCategoryBreakdown(selectedHorse)[0]?.amount.toLocaleString('fr-FR') || '0'} €
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Graphique circulaire (SVG) */}
+                                            <div className="bg-white p-4 rounded-lg border border-gray-200">
+                                                <h3 className="font-bold text-gray-800 mb-4">Visualisation circulaire</h3>
+                                                <svg viewBox="0 0 200 200" className="w-full max-w-sm mx-auto">
+                                                    {(() => {
+                                                        const categories = getCategoryBreakdown(selectedHorse);
+                                                        const total = getTotalExpenses(selectedHorse);
+                                                        let currentAngle = 0;
+                                                        
+                                                        return categories.map((category, index) => {
+                                                            const percentage = category.amount / total;
+                                                            const angle = percentage * 360;
+                                                            const startAngle = currentAngle;
+                                                            currentAngle += angle;
+                                                            
+                                                            const startRad = (startAngle - 90) * Math.PI / 180;
+                                                            const endRad = (currentAngle - 90) * Math.PI / 180;
+                                                            
+                                                            const x1 = 100 + 80 * Math.cos(startRad);
+                                                            const y1 = 100 + 80 * Math.sin(startRad);
+                                                            const x2 = 100 + 80 * Math.cos(endRad);
+                                                            const y2 = 100 + 80 * Math.sin(endRad);
+                                                            
+                                                            const largeArc = angle > 180 ? 1 : 0;
+                                                            
+                                                            return (
+                                                                <g key={category.name}>
+                                                                    <path
+                                                                        d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                                                        fill={getColorForIndex(index)}
+                                                                        stroke="white"
+                                                                        strokeWidth="2"
+                                                                    />
+                                                                </g>
+                                                            );
+                                                        });
+                                                    })()}
+                                                    <circle cx="100" cy="100" r="50" fill="white" />
+                                                    <text x="100" y="95" textAnchor="middle" style={{fontSize: '14px', fontWeight: 'bold', fill: '#374151'}}>
+                                                        {getTotalExpenses(selectedHorse).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
+                                                    </text>
+                                                    <text x="100" y="110" textAnchor="middle" style={{fontSize: '12px', fill: '#6B7280'}}>
+                                                        Total €
+                                                    </text>
+                                                </svg>
+                                                
+                                                {/* Légende */}
+                                                <div className="mt-4 grid grid-cols-2 gap-2">
+                                                    {getCategoryBreakdown(selectedHorse).map((category, index) => (
+                                                        <div key={category.name} className="flex items-center gap-2">
+                                                            <div
+                                                                className="w-3 h-3 rounded-full flex-shrink-0"
+                                                                style={{ backgroundColor: getColorForIndex(index) }}
+                                                            />
+                                                            <span className="text-xs text-gray-700 truncate">{category.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
-                                    </>
-                                )}
+                                    )}
+                                </div>
 
-                                {selectedHorse && showAnalytics && (
-                                    <div className="space-y-4">
-                                        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-lg">
-                                            <h3 className="font-bold text-gray-800 mb-4 text-lg">Répartition des dépenses</h3>
-                                            
-                                            {/* Graphique en barres */}
-                                            <div className="space-y-3">
-                                                {getCategoryBreakdown(selectedHorse).map((category, index) => {
-                                                    const percentage = (category.amount / getTotalExpenses(selectedHorse)) * 100;
-                                                    return (
-                                                        <div key={category.name} className="space-y-1">
-                                                            <div className="flex justify-between items-center text-sm">
-                                                                <span className="font-medium text-gray-700">{category.name}</span>
-                                                                <span className="text-gray-600">{category.amount.toLocaleString('fr-FR')} € ({percentage.toFixed(1)}%)</span>
-                                                            </div>
-                                                            <div className="w-full bg-gray-200 rounded-full h-3">
+                                {/* Colonne droite - ROI */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                        <Calculator size={28} />
+                                        Calculateur ROI
+                                    </h2>
+
+                                    {selectedHorse && (
+                                        <>
+                                            <div className="mb-6">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Commission (%)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={commission}
+                                                    onChange={(e) => setCommission(parseFloat(e.target.value) || 0)}
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                />
+                                            </div>
+
+                                            <div className="mb-6">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Prix de vente (€)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    placeholder="Ex: 18000"
+                                                    value={customPrice}
+                                                    onChange={(e) => setCustomPrice(e.target.value)}
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                />
+                                            </div>
+
+                                            <div className="bg-indigo-50 p-4 rounded-lg mb-6">
+                                                <p className="text-sm text-gray-600 mb-1">Seuil de rentabilité</p>
+                                                <p className="text-3xl font-bold text-indigo-600">
+                                                    {getBreakEvenPrice(getTotalExpenses(selectedHorse)).toLocaleString('fr-FR', {
+                                                        minimumFractionDigits: 0,
+                                                        maximumFractionDigits: 0
+                                                    })} €
+                                                </p>
+                                            </div>
+
+                                            {customPrice && parseFloat(customPrice) > 0 && (
+                                                <>
+                                                    <h3 className="font-semibold text-gray-800 mb-3">Résultat de vente</h3>
+                                                    <div className="mb-6">
+                                                        {(() => {
+                                                            const price = parseFloat(customPrice);
+                                                            const roi = calculateROI(price, getTotalExpenses(selectedHorse));
+                                                            const roiPercentage = calculateROIPercentage(price, getTotalExpenses(selectedHorse));
+                                                            const isProfit = roi >= 0;
+                                                            return (
                                                                 <div
-                                                                    className="h-3 rounded-full transition-all duration-500"
-                                                                    style={{
-                                                                        width: `${percentage}%`,
-                                                                        backgroundColor: getColorForIndex(index)
-                                                                    }}
-                                                                />
+                                                                    className={`p-4 rounded-lg ${
+                                                                        isProfit ? 'bg-green-50 border-2 border-green-300' : 'bg-red-50 border-2 border-red-300'
+                                                                    }`}
+                                                                >
+                                                                    <div className="flex justify-between items-center mb-2">
+                                                                        <span className="text-lg font-semibold text-gray-800">
+                                                                            {price.toLocaleString('fr-FR')} €
+                                                                        </span>
+                                                                        <span className={`text-2xl ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                            {isProfit ? '✅' : '❌'}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-600 mb-1">
+                                                                        Commission ({commission}%): {(price * commission / 100).toLocaleString('fr-FR')} €
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-600 mb-2">
+                                                                        Vous recevez: {(price * (1 - commission / 100)).toLocaleString('fr-FR')} €
+                                                                    </div>
+                                                                    <div className={`text-lg font-bold ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                        {isProfit ? 'Bénéfice' : 'Perte'}: {roi.toLocaleString('fr-FR', {
+                                                                            minimumFractionDigits: 0,
+                                                                            maximumFractionDigits: 0
+                                                                        })} € ({roiPercentage >= 0 ? '+' : ''}{roiPercentage.toLocaleString('fr-FR', {
+                                                                            minimumFractionDigits: 1,
+                                                                            maximumFractionDigits: 1
+                                                                        })}%)
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            <h3 className="font-semibold text-gray-800 mb-3">Scénarios de vente</h3>
+                                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                                                {scenariosPrices.map(price => {
+                                                    const roi = calculateROI(price, getTotalExpenses(selectedHorse));
+                                                    const roiPercentage = calculateROIPercentage(price, getTotalExpenses(selectedHorse));
+                                                    const isProfit = roi >= 0;
+                                                    return (
+                                                        <div
+                                                            key={price}
+                                                            className={`p-3 rounded-lg ${
+                                                                isProfit ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                                                            }`}
+                                                        >
+                                                            <div className="flex justify-between items-center mb-1">
+                                                                <span className="font-semibold text-gray-800">
+                                                                    {price.toLocaleString('fr-FR')} €
+                                                                </span>
+                                                                <span className={`text-sm ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                    {isProfit ? '✅' : '❌'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-sm text-gray-600">
+                                                                Commission: {(price * commission / 100).toLocaleString('fr-FR')} €
+                                                            </div>
+                                                            <div className={`text-sm font-medium ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                {isProfit ? 'Bénéfice' : 'Perte'}: {roi.toLocaleString('fr-FR', {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0
+                                                                })} € ({roiPercentage >= 0 ? '+' : ''}{roiPercentage.toLocaleString('fr-FR', {
+                                                                    minimumFractionDigits: 1,
+                                                                    maximumFractionDigits: 1
+                                                                })}%)
                                                             </div>
                                                         </div>
                                                     );
                                                 })}
                                             </div>
-
-                                            {/* Statistiques */}
-                                            <div className="mt-6 pt-4 border-t border-gray-200">
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div className="bg-white p-3 rounded-lg">
-                                                        <p className="text-xs text-gray-600 mb-1">Nombre de catégories</p>
-                                                        <p className="text-xl font-bold text-indigo-600">
-                                                            {getCategoryBreakdown(selectedHorse).length}
-                                                        </p>
-                                                    </div>
-                                                    <div className="bg-white p-3 rounded-lg">
-                                                        <p className="text-xs text-gray-600 mb-1">Dépense moyenne</p>
-                                                        <p className="text-xl font-bold text-indigo-600">
-                                                            {(getTotalExpenses(selectedHorse) / selectedHorse.expenses.length).toLocaleString('fr-FR', {
-                                                                minimumFractionDigits: 0,
-                                                                maximumFractionDigits: 0
-                                                            })} €
-                                                        </p>
-                                                    </div>
-                                                    <div className="bg-white p-3 rounded-lg">
-                                                        <p className="text-xs text-gray-600 mb-1">Plus grosse catégorie</p>
-                                                        <p className="text-sm font-bold text-indigo-600">
-                                                            {getCategoryBreakdown(selectedHorse)[0]?.name || '-'}
-                                                        </p>
-                                                    </div>
-                                                    <div className="bg-white p-3 rounded-lg">
-                                                        <p className="text-xs text-gray-600 mb-1">Montant</p>
-                                                        <p className="text-xl font-bold text-indigo-600">
-                                                            {getCategoryBreakdown(selectedHorse)[0]?.amount.toLocaleString('fr-FR') || '0'} €
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Graphique circulaire (SVG) */}
-                                        <div className="bg-white p-4 rounded-lg border border-gray-200">
-                                            <h3 className="font-bold text-gray-800 mb-4">Visualisation circulaire</h3>
-                                            <svg viewBox="0 0 200 200" className="w-full max-w-sm mx-auto">
-                                                {(() => {
-                                                    const categories = getCategoryBreakdown(selectedHorse);
-                                                    const total = getTotalExpenses(selectedHorse);
-                                                    let currentAngle = 0;
-                                                    
-                                                    return categories.map((category, index) => {
-                                                        const percentage = category.amount / total;
-                                                        const angle = percentage * 360;
-                                                        const startAngle = currentAngle;
-                                                        currentAngle += angle;
-                                                        
-                                                        const startRad = (startAngle - 90) * Math.PI / 180;
-                                                        const endRad = (currentAngle - 90) * Math.PI / 180;
-                                                        
-                                                        const x1 = 100 + 80 * Math.cos(startRad);
-                                                        const y1 = 100 + 80 * Math.sin(startRad);
-                                                        const x2 = 100 + 80 * Math.cos(endRad);
-                                                        const y2 = 100 + 80 * Math.sin(endRad);
-                                                        
-                                                        const largeArc = angle > 180 ? 1 : 0;
-                                                        
-                                                        return (
-                                                            <g key={category.name}>
-                                                                <path
-                                                                    d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                                                                    fill={getColorForIndex(index)}
-                                                                    stroke="white"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </g>
-                                                        );
-                                                    });
-                                                })()}
-                                                <circle cx="100" cy="100" r="50" fill="white" />
-                                                <text x="100" y="95" textAnchor="middle" style={{fontSize: '14px', fontWeight: 'bold', fill: '#374151'}}>
-                                                    {getTotalExpenses(selectedHorse).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
-                                                </text>
-                                                <text x="100" y="110" textAnchor="middle" style={{fontSize: '12px', fill: '#6B7280'}}>
-                                                    Total €
-                                                </text>
-                                            </svg>
-                                            
-                                            {/* Légende */}
-                                            <div className="mt-4 grid grid-cols-2 gap-2">
-                                                {getCategoryBreakdown(selectedHorse).map((category, index) => (
-                                                    <div key={category.name} className="flex items-center gap-2">
-                                                        <div
-                                                            className="w-3 h-3 rounded-full flex-shrink-0"
-                                                            style={{ backgroundColor: getColorForIndex(index) }}
-                                                        />
-                                                        <span className="text-xs text-gray-700 truncate">{category.name}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                        </>
+                                    )}
+                                </div>
                             </div>
+                        )}
 
-                            {/* Colonne droite - ROI */}
-                            <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                    <Calculator size={28} />
-                                    Calculateur ROI
-                                </h2>
+                        {showDashboard && (
+                            <div className="space-y-6">
+                                {/* Statistiques globales */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-indigo-100 text-sm mb-2">Capital total investi</p>
+                                        <p className="text-4xl font-bold">
+                                            {getGlobalStats().totalInvested.toLocaleString('fr-FR', {
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0
+                                            })} €
+                                        </p>
+                                    </div>
 
-                                {selectedHorse && (
-                                    <>
-                                        <div className="mb-6">
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Commission (%)
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={commission}
-                                                onChange={(e) => setCommission(parseFloat(e.target.value) || 0)}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                            />
-                                        </div>
+                                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-blue-100 text-sm mb-2">Nombre de chevaux</p>
+                                        <p className="text-4xl font-bold">{getGlobalStats().horseCount}</p>
+                                    </div>
 
-                                        <div className="mb-6">
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Prix de vente (€)
-                                            </label>
-                                            <input
-                                                type="number"
-                                                placeholder="Ex: 18000"
-                                                value={customPrice}
-                                                onChange={(e) => setCustomPrice(e.target.value)}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                            />
-                                        </div>
+                                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-purple-100 text-sm mb-2">Investissement moyen</p>
+                                        <p className="text-4xl font-bold">
+                                            {getGlobalStats().avgPerHorse.toLocaleString('fr-FR', {
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0
+                                            })} €
+                                        </p>
+                                    </div>
 
-                                        <div className="bg-indigo-50 p-4 rounded-lg mb-6">
-                                            <p className="text-sm text-gray-600 mb-1">Seuil de rentabilité</p>
-                                            <p className="text-3xl font-bold text-indigo-600">
-                                                {getBreakEvenPrice(getTotalExpenses(selectedHorse)).toLocaleString('fr-FR', {
-                                                    minimumFractionDigits: 0,
-                                                    maximumFractionDigits: 0
-                                                })} €
-                                            </p>
-                                        </div>
+                                    <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-green-100 text-sm mb-2">Plus gros investissement</p>
+                                        <p className="text-2xl font-bold truncate">
+                                            {getGlobalStats().mostExpensiveHorse?.name || '-'}
+                                        </p>
+                                        <p className="text-green-100 text-sm mt-1">
+                                            {getGlobalStats().mostExpensiveHorse 
+                                                ? getTotalExpenses(getGlobalStats().mostExpensiveHorse).toLocaleString('fr-FR') + ' €'
+                                                : '0 €'
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
 
-                                        {customPrice && parseFloat(customPrice) > 0 && (
-                                            <>
-                                                <h3 className="font-semibold text-gray-800 mb-3">Résultat de vente</h3>
-                                                <div className="mb-6">
-                                                    {(() => {
-                                                        const price = parseFloat(customPrice);
-                                                        const roi = calculateROI(price, getTotalExpenses(selectedHorse));
-                                                        const roiPercentage = calculateROIPercentage(price, getTotalExpenses(selectedHorse));
-                                                        const isProfit = roi >= 0;
-                                                        return (
-                                                            <div
-                                                                className={`p-4 rounded-lg ${
-                                                                    isProfit ? 'bg-green-50 border-2 border-green-300' : 'bg-red-50 border-2 border-red-300'
-                                                                }`}
-                                                            >
-                                                                <div className="flex justify-between items-center mb-2">
-                                                                    <span className="text-lg font-semibold text-gray-800">
-                                                                        {price.toLocaleString('fr-FR')} €
-                                                                    </span>
-                                                                    <span className={`text-2xl ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
-                                                                        {isProfit ? '✅' : '❌'}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="text-sm text-gray-600 mb-1">
-                                                                    Commission ({commission}%): {(price * commission / 100).toLocaleString('fr-FR')} €
-                                                                </div>
-                                                                <div className="text-sm text-gray-600 mb-2">
-                                                                    Vous recevez: {(price * (1 - commission / 100)).toLocaleString('fr-FR')} €
-                                                                </div>
-                                                                <div className={`text-lg font-bold ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
-                                                                    {isProfit ? 'Bénéfice' : 'Perte'}: {roi.toLocaleString('fr-FR', {
-                                                                        minimumFractionDigits: 0,
-                                                                        maximumFractionDigits: 0
-                                                                    })} € ({roiPercentage >= 0 ? '+' : ''}{roiPercentage.toLocaleString('fr-FR', {
-                                                                        minimumFractionDigits: 1,
-                                                                        maximumFractionDigits: 1
-                                                                    })}%)
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })()}
+                                {/* Graphique comparatif des chevaux */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Comparaison des investissements</h2>
+                                    <div className="space-y-4">
+                                        {horses.sort((a, b) => getTotalExpenses(b) - getTotalExpenses(a)).map((horse, index) => {
+                                            const total = getTotalExpenses(horse);
+                                            const maxTotal = horses.length > 0 
+                                                ? Math.max(...horses.map(h => getTotalExpenses(h))) 
+                                                : 1;
+                                            const percentage = (total / maxTotal) * 100;
+                                            
+                                            return (
+                                                <div key={horse.id} className="space-y-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-semibold text-gray-800">{horse.name}</span>
+                                                        <span className="text-gray-600 font-medium">
+                                                            {total.toLocaleString('fr-FR')} €
+                                                        </span>
+                                                    </div>
+                                                    <div className="w-full bg-gray-200 rounded-full h-4">
+                                                        <div
+                                                            className="h-4 rounded-full transition-all duration-500"
+                                                            style={{
+                                                                width: `${percentage}%`,
+                                                                backgroundColor: getColorForIndex(index)
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </>
-                                        )}
+                                            );
+                                        })}
+                                    </div>
+                                </div>
 
-                                        <h3 className="font-semibold text-gray-800 mb-3">Scénarios de vente</h3>
-                                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                                            {scenariosPrices.map(price => {
-                                                const roi = calculateROI(price, getTotalExpenses(selectedHorse));
-                                                const roiPercentage = calculateROIPercentage(price, getTotalExpenses(selectedHorse));
-                                                const isProfit = roi >= 0;
+                                {/* Liste détaillée avec ROI */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Détails par cheval</h2>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr className="border-b-2 border-gray-200">
+                                                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Cheval</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Investissement</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Seuil rentabilité</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Dépenses</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">% du total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {horses.map((horse) => {
+                                                    const total = getTotalExpenses(horse);
+                                                    const breakEven = getBreakEvenPrice(total);
+                                                    const percentOfTotal = getGlobalStats().totalInvested > 0
+                                                        ? (total / getGlobalStats().totalInvested) * 100
+                                                        : 0;
+                                                    
+                                                    return (
+                                                        <tr key={horse.id} className="border-b border-gray-100 hover:bg-gray-50">
+                                                            <td className="py-3 px-4 font-medium text-gray-800">{horse.name}</td>
+                                                            <td className="py-3 px-4 text-right text-gray-700">
+                                                                {total.toLocaleString('fr-FR')} €
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right text-indigo-600 font-medium">
+                                                                {breakEven.toLocaleString('fr-FR', {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0
+                                                                })} €
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right text-gray-600">
+                                                                {horse.expenses.length} ligne{horse.expenses.length > 1 ? 's' : ''}
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right text-gray-600">
+                                                                {percentOfTotal.toFixed(1)}%
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                {/* Graphique circulaire de répartition */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Répartition du capital</h2>
+                                    <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+                                        <svg viewBox="0 0 200 200" className="w-full max-w-sm">
+                                            {(() => {
+                                                const total = getGlobalStats().totalInvested;
+                                                let currentAngle = 0;
+                                                
+                                                return horses.map((horse, index) => {
+                                                    const horseTotal = getTotalExpenses(horse);
+                                                    const percentage = horseTotal / total;
+                                                    const angle = percentage * 360;
+                                                    const startAngle = currentAngle;
+                                                    currentAngle += angle;
+                                                    
+                                                    const startRad = (startAngle - 90) * Math.PI / 180;
+                                                    const endRad = (currentAngle - 90) * Math.PI / 180;
+                                                    
+                                                    const x1 = 100 + 80 * Math.cos(startRad);
+                                                    const y1 = 100 + 80 * Math.sin(startRad);
+                                                    const x2 = 100 + 80 * Math.cos(endRad);
+                                                    const y2 = 100 + 80 * Math.sin(endRad);
+                                                    
+                                                    const largeArc = angle > 180 ? 1 : 0;
+                                                    
+                                                    return (
+                                                        <g key={horse.id}>
+                                                            <path
+                                                                d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                                                fill={getColorForIndex(index)}
+                                                                stroke="white"
+                                                                strokeWidth="2"
+                                                            />
+                                                        </g>
+                                                    );
+                                                });
+                                            })()}
+                                            <circle cx="100" cy="100" r="50" fill="white" />
+                                            <text x="100" y="95" textAnchor="middle" style={{fontSize: '14px', fontWeight: 'bold', fill: '#374151'}}>
+                                                {getGlobalStats().totalInvested.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
+                                            </text>
+                                            <text x="100" y="110" textAnchor="middle" style={{fontSize: '12px', fill: '#6B7280'}}>
+                                                Total €
+                                            </text>
+                                        </svg>
+                                        
+                                        <div className="grid grid-cols-1 gap-3 w-full max-w-sm">
+                                            {horses.map((horse, index) => {
+                                                const total = getTotalExpenses(horse);
+                                                const percentage = (total / getGlobalStats().totalInvested) * 100;
                                                 return (
-                                                    <div
-                                                        key={price}
-                                                        className={`p-3 rounded-lg ${
-                                                            isProfit ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-                                                        }`}
-                                                    >
-                                                        <div className="flex justify-between items-center mb-1">
-                                                            <span className="font-semibold text-gray-800">
-                                                                {price.toLocaleString('fr-FR')} €
-                                                            </span>
-                                                            <span className={`text-sm ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
-                                                                {isProfit ? '✅' : '❌'}
-                                                            </span>
+                                                    <div key={horse.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                        <div className="flex items-center gap-3">
+                                                            <div
+                                                                className="w-4 h-4 rounded-full flex-shrink-0"
+                                                                style={{ backgroundColor: getColorForIndex(index) }}
+                                                            />
+                                                            <span className="font-medium text-gray-800">{horse.name}</span>
                                                         </div>
-                                                        <div className="text-sm text-gray-600">
-                                                            Commission: {(price * commission / 100).toLocaleString('fr-FR')} €
-                                                        </div>
-                                                        <div className={`text-sm font-medium ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
-                                                            {isProfit ? 'Bénéfice' : 'Perte'}: {roi.toLocaleString('fr-FR', {
-                                                                minimumFractionDigits: 0,
-                                                                maximumFractionDigits: 0
-                                                            })} € ({roiPercentage >= 0 ? '+' : ''}{roiPercentage.toLocaleString('fr-FR', {
-                                                                minimumFractionDigits: 1,
-                                                                maximumFractionDigits: 1
-                                                            })}%)
+                                                        <div className="text-right">
+                                                            <p className="font-semibold text-gray-800">
+                                                                {total.toLocaleString('fr-FR')} €
+                                                            </p>
+                                                            <p className="text-xs text-gray-600">
+                                                                {percentage.toFixed(1)}%
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 );
                                             })}
                                         </div>
-                                    </>
-                                )}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        )}
+
                     </div>
                 </div>
             );
