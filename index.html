@@ -572,4 +572,222 @@
 
                                             {customPrice && parseFloat(customPrice) > 0 && (
                                                 <>
-                                                    <h3 className="font-semibold text
+                                                    <h3 className="font-semibold text-gray-800 mb-3">Résultat de vente</h3>
+                                                    <div className="mb-6">
+                                                        {(() => {
+                                                            const price = parseFloat(customPrice);
+                                                            const roi = calculateROI(price, getTotalExpenses(selectedHorse));
+                                                            const roiPercentage = calculateROIPercentage(price, getTotalExpenses(selectedHorse));
+                                                            const isProfit = roi >= 0;
+                                                            return (
+                                                                <div
+                                                                    className={`p-4 rounded-lg ${
+                                                                        isProfit ? 'bg-green-50 border-2 border-green-300' : 'bg-red-50 border-2 border-red-300'
+                                                                    }`}
+                                                                >
+                                                                    <div className="flex justify-between items-center mb-2">
+                                                                        <span className="text-lg font-semibold text-gray-800">
+                                                                            {price.toLocaleString('fr-FR')} €
+                                                                        </span>
+                                                                        <span className={`text-2xl ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                            {isProfit ? '✅' : '❌'}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-600 mb-1">
+                                                                        Commission ({commission}%): {(price * commission / 100).toLocaleString('fr-FR')} €
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-600 mb-2">
+                                                                        Vous recevez: {(price * (1 - commission / 100)).toLocaleString('fr-FR')} €
+                                                                    </div>
+                                                                    <div className={`text-lg font-bold ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                        {isProfit ? 'Bénéfice' : 'Perte'}: {roi.toLocaleString('fr-FR', {
+                                                                            minimumFractionDigits: 0,
+                                                                            maximumFractionDigits: 0
+                                                                        })} € ({roiPercentage >= 0 ? '+' : ''}{roiPercentage.toLocaleString('fr-FR', {
+                                                                            minimumFractionDigits: 1,
+                                                                            maximumFractionDigits: 1
+                                                                        })}%)
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            <h3 className="font-semibold text-gray-800 mb-3">Scénarios de vente</h3>
+                                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                                                {scenariosPrices.map(price => {
+                                                    const roi = calculateROI(price, getTotalExpenses(selectedHorse));
+                                                    const roiPercentage = calculateROIPercentage(price, getTotalExpenses(selectedHorse));
+                                                    const isProfit = roi >= 0;
+                                                    return (
+                                                        <div
+                                                            key={price}
+                                                            className={`p-3 rounded-lg ${
+                                                                isProfit ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                                                            }`}
+                                                        >
+                                                            <div className="flex justify-between items-center mb-1">
+                                                                <span className="font-semibold text-gray-800">
+                                                                    {price.toLocaleString('fr-FR')} €
+                                                                </span>
+                                                                <span className={`text-sm ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                    {isProfit ? '✅' : '❌'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-sm text-gray-600">
+                                                                Commission: {(price * commission / 100).toLocaleString('fr-FR')} €
+                                                            </div>
+                                                            <div className={`text-sm font-medium ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                {isProfit ? 'Bénéfice' : 'Perte'}: {roi.toLocaleString('fr-FR', {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0
+                                                                })} € ({roiPercentage >= 0 ? '+' : ''}{roiPercentage.toLocaleString('fr-FR', {
+                                                                    minimumFractionDigits: 1,
+                                                                    maximumFractionDigits: 1
+                                                                })}%)
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {showDashboard && (
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-indigo-100 text-sm mb-2">Capital total investi</p>
+                                        <p className="text-4xl font-bold">
+                                            {getGlobalStats().totalInvested.toLocaleString('fr-FR', {
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0
+                                            })} €
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-blue-100 text-sm mb-2">Nombre de chevaux</p>
+                                        <p className="text-4xl font-bold">{getGlobalStats().horseCount}</p>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-purple-100 text-sm mb-2">Investissement moyen</p>
+                                        <p className="text-4xl font-bold">
+                                            {getGlobalStats().avgPerHorse.toLocaleString('fr-FR', {
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0
+                                            })} €
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-green-100 text-sm mb-2">Plus gros investissement</p>
+                                        <p className="text-2xl font-bold truncate">
+                                            {getGlobalStats().mostExpensiveHorse?.name || '-'}
+                                        </p>
+                                        <p className="text-green-100 text-sm mt-1">
+                                            {getGlobalStats().mostExpensiveHorse 
+                                                ? getTotalExpenses(getGlobalStats().mostExpensiveHorse).toLocaleString('fr-FR') + ' €'
+                                                : '0 €'
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Comparaison des investissements</h2>
+                                    <div className="space-y-4">
+                                        {horses.sort((a, b) => getTotalExpenses(b) - getTotalExpenses(a)).map((horse, index) => {
+                                            const total = getTotalExpenses(horse);
+                                            const maxTotal = horses.length > 0 
+                                                ? Math.max(...horses.map(h => getTotalExpenses(h))) 
+                                                : 1;
+                                            const percentage = (total / maxTotal) * 100;
+                                            
+                                            return (
+                                                <div key={horse.id} className="space-y-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-semibold text-gray-800">{horse.name}</span>
+                                                        <span className="text-gray-600 font-medium">
+                                                            {total.toLocaleString('fr-FR')} €
+                                                        </span>
+                                                    </div>
+                                                    <div className="w-full bg-gray-200 rounded-full h-4">
+                                                        <div
+                                                            className="h-4 rounded-full"
+                                                            style={{
+                                                                width: `${percentage}%`,
+                                                                backgroundColor: getColorForIndex(index)
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Détails par cheval</h2>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr className="border-b-2 border-gray-200">
+                                                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Cheval</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Investissement</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Seuil rentabilité</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Dépenses</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">% du total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {horses.map((horse) => {
+                                                    const total = getTotalExpenses(horse);
+                                                    const breakEven = getBreakEvenPrice(total);
+                                                    const percentOfTotal = getGlobalStats().totalInvested > 0
+                                                        ? (total / getGlobalStats().totalInvested) * 100
+                                                        : 0;
+                                                    
+                                                    return (
+                                                        <tr key={horse.id} className="border-b border-gray-100 hover:bg-gray-50">
+                                                            <td className="py-3 px-4 font-medium text-gray-800">{horse.name}</td>
+                                                            <td className="py-3 px-4 text-right text-gray-700">
+                                                                {total.toLocaleString('fr-FR')} €
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right text-indigo-600 font-medium">
+                                                                {breakEven.toLocaleString('fr-FR', {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0
+                                                                })} €
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right text-gray-600">
+                                                                {horse.expenses.length} ligne{horse.expenses.length > 1 ? 's' : ''}
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right text-gray-600">
+                                                                {percentOfTotal.toFixed(1)}%
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
