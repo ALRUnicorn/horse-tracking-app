@@ -302,22 +302,50 @@
             const scenariosPrices = [10000, 12500, 15000, 17500, 20000, 25000];
 
             // ─── Editable field component ───
+            const formatDateFR = (dateStr) => {
+                if (!dateStr) return '—';
+                const d = new Date(dateStr);
+                const day = d.getDate();
+                const months = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+                return `${day} ${months[d.getMonth()]} ${d.getFullYear()}`;
+            };
+
             const EditableDate = ({ horse, field, label }) => {
                 const isEditing = editingField?.horseId === horse.id && editingField?.field === field;
                 const value = horse[field];
                 if (isEditing) {
+                    const parts = value ? value.split('-') : ['2025','01','01'];
                     return (
-                        <input type="date" defaultValue={value} autoFocus
-                            onClick={e => e.stopPropagation()}
-                            onBlur={e => updateHorseField(horse.id, field, e.target.value)}
-                            onChange={e => updateHorseField(horse.id, field, e.target.value)}
-                            className="text-xs px-2 py-1 border border-indigo-300 rounded bg-white focus:ring-2 focus:ring-indigo-400 outline-none"
-                        />
+                        <span className="inline-flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                            <span className="text-xs text-slate-500 mr-1">{label}:</span>
+                            <select defaultValue={parts[2]} onChange={e => {
+                                const newVal = `${parts[0]}-${parts[1]}-${e.target.value}`;
+                                updateHorseField(horse.id, field, newVal);
+                            }} className="text-xs px-1 py-0.5 border border-indigo-300 rounded bg-white outline-none">
+                                {Array.from({length:31},(_,i)=>i+1).map(d => <option key={d} value={String(d).padStart(2,'0')}>{d}</option>)}
+                            </select>
+                            <select defaultValue={parts[1]} onChange={e => {
+                                const newVal = `${parts[0]}-${e.target.value}-${parts[2]}`;
+                                updateHorseField(horse.id, field, newVal);
+                            }} className="text-xs px-1 py-0.5 border border-indigo-300 rounded bg-white outline-none">
+                                {['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'].map((m,i) => (
+                                    <option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>
+                                ))}
+                            </select>
+                            <select defaultValue={parts[0]} onChange={e => {
+                                const newVal = `${e.target.value}-${parts[1]}-${parts[2]}`;
+                                updateHorseField(horse.id, field, newVal);
+                            }} className="text-xs px-1 py-0.5 border border-indigo-300 rounded bg-white outline-none">
+                                {Array.from({length:20},(_,i)=>2015+i).map(y => <option key={y} value={y}>{y}</option>)}
+                            </select>
+                            <button onClick={e => { e.stopPropagation(); setEditingField(null); }}
+                                className="text-indigo-500 hover:text-indigo-700 text-xs ml-1">✓</button>
+                        </span>
                     );
                 }
                 return (
                     <span className="inline-flex items-center gap-1 cursor-pointer group" onClick={e => { e.stopPropagation(); setEditingField({ horseId: horse.id, field }); }}>
-                        <span className="text-xs text-slate-500">{label}: {value ? new Date(value).toLocaleDateString('fr-FR') : '—'}</span>
+                        <span className="text-xs text-slate-500">{label}: {formatDateFR(value)}</span>
                         <span className="text-slate-300 group-hover:text-indigo-500 transition"><Edit size={10} /></span>
                     </span>
                 );
@@ -391,8 +419,28 @@
                                     <div className="mb-4 space-y-2">
                                         <input type="text" placeholder="Nom du cheval" value={horseName} onChange={e => setHorseName(e.target.value)}
                                             className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none bg-white text-sm" />
-                                        <input type="date" value={purchaseDate} onChange={e => setPurchaseDate(e.target.value)}
-                                            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none bg-white text-sm" />
+                                        <div>
+                                            <label className="text-xs font-medium text-slate-500 mb-1 block">Date d'achat</label>
+                                            <div className="flex gap-2">
+                                                <select value={purchaseDate.split('-')[2] || '01'}
+                                                    onChange={e => { const p = purchaseDate.split('-'); setPurchaseDate(`${p[0]}-${p[1]}-${e.target.value}`); }}
+                                                    className="flex-1 px-2 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none bg-white text-sm text-center">
+                                                    {Array.from({length:31},(_,i)=>i+1).map(d => <option key={d} value={String(d).padStart(2,'0')}>{d}</option>)}
+                                                </select>
+                                                <select value={purchaseDate.split('-')[1] || '01'}
+                                                    onChange={e => { const p = purchaseDate.split('-'); setPurchaseDate(`${p[0]}-${e.target.value}-${p[2]}`); }}
+                                                    className="flex-[2] px-2 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none bg-white text-sm text-center">
+                                                    {['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'].map((m,i) => (
+                                                        <option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>
+                                                    ))}
+                                                </select>
+                                                <select value={purchaseDate.split('-')[0] || '2025'}
+                                                    onChange={e => { const p = purchaseDate.split('-'); setPurchaseDate(`${e.target.value}-${p[1]}-${p[2]}`); }}
+                                                    className="flex-[1.5] px-2 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none bg-white text-sm text-center">
+                                                    {Array.from({length:20},(_,i)=>2015+i).map(y => <option key={y} value={y}>{y}</option>)}
+                                                </select>
+                                            </div>
+                                        </div>
                                         <button onClick={addHorse}
                                             className="w-full bg-indigo-600 text-white py-2.5 rounded-xl hover:bg-indigo-700 transition font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-200/50">
                                             <Plus size={18} /> Ajouter
@@ -478,7 +526,7 @@
                                                     <div key={expense.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
                                                         <div>
                                                             <p className="font-medium text-slate-700 text-sm">{expense.name}</p>
-                                                            <p className="text-xs text-slate-400">{new Date(expense.date || Date.now()).toLocaleDateString('fr-FR')}</p>
+                                                            <p className="text-xs text-slate-400">{formatDateFR(expense.date)}</p>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-sm font-semibold text-slate-700">{expense.amount.toLocaleString('fr-FR')} €</span>
@@ -793,9 +841,9 @@
                                                     <tr key={horse.id} className="border-b border-slate-50 hover:bg-slate-50/50">
                                                         <td className="py-2.5 px-3 font-medium text-slate-800">{horse.name}</td>
                                                         <td className="py-2.5 px-3"><StatusBadge horse={horse} /></td>
-                                                        <td className="py-2.5 px-3 text-slate-500 text-xs">{horse.purchaseDate ? new Date(horse.purchaseDate).toLocaleDateString('fr-FR') : '—'}</td>
-                                                        <td className="py-2.5 px-3 text-slate-500 text-xs">{horse.expectedSaleDate ? new Date(horse.expectedSaleDate).toLocaleDateString('fr-FR') : '—'}</td>
-                                                        <td className="py-2.5 px-3 text-slate-500 text-xs">{horse.actualSaleDate ? new Date(horse.actualSaleDate).toLocaleDateString('fr-FR') : '—'}</td>
+                                                        <td className="py-2.5 px-3 text-slate-500 text-xs">{formatDateFR(horse.purchaseDate)}</td>
+                                                        <td className="py-2.5 px-3 text-slate-500 text-xs">{formatDateFR(horse.expectedSaleDate)}</td>
+                                                        <td className="py-2.5 px-3 text-slate-500 text-xs">{formatDateFR(horse.actualSaleDate)}</td>
                                                         <td className="py-2.5 px-3 text-slate-700 font-medium">{total.toLocaleString('fr-FR')} €</td>
                                                         <td className="py-2.5 px-3 text-indigo-600 font-medium">{breakEven.toLocaleString('fr-FR', {maximumFractionDigits:0})} €</td>
                                                         <td className="py-2.5 px-3 text-slate-600">{getHoldingPeriodText(horse)}</td>
