@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -93,8 +92,6 @@
             const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split('T')[0]);
             const [commission, setCommission] = useState(10);
             const [customPrice, setCustomPrice] = useState('');
-            const [projectedSaleDate, setProjectedSaleDate] = useState('');
-            const [actualSaleDate, setActualSaleDate] = useState('');
             const [showAnalytics, setShowAnalytics] = useState(false);
             const [showDashboard, setShowDashboard] = useState(false);
             const [editingHorse, setEditingHorse] = useState(null);
@@ -108,35 +105,27 @@
                 localStorage.setItem('horses', JSON.stringify(horses));
             }, [horses]);
 
-            useEffect(() => {
-                if (selectedHorse) {
-                    setProjectedSaleDate(selectedHorse.projectedSaleDate || '');
-                    setActualSaleDate(selectedHorse.actualSaleDate || '');
-                }
-            }, [selectedHorse]);
-
             const addHorse = () => {
                 if (!horseName.trim()) return;
                 setHorses([...horses, {
                     id: Date.now(),
                     name: horseName,
                     purchaseDate: purchaseDate,
-                    projectedSaleDate: '',
-                    actualSaleDate: '',
                     expenses: []
                 }]);
                 setHorseName('');
                 setPurchaseDate(new Date().toISOString().split('T')[0]);
             };
 
-            const updateHorseDates = (horseId, field, value) => {
+            const updateHorsePurchaseDate = (horseId, newDate) => {
                 const updatedHorses = horses.map(h => 
-                    h.id === horseId ? { ...h, [field]: value } : h
+                    h.id === horseId ? { ...h, purchaseDate: newDate } : h
                 );
                 setHorses(updatedHorses);
                 if (selectedHorse?.id === horseId) {
                     setSelectedHorse(updatedHorses.find(h => h.id === horseId));
                 }
+                setEditingHorse(null);
             };
 
             const deleteHorse = (id) => {
@@ -204,24 +193,12 @@
                 return received / totalExpenses;
             };
 
-            const calculateIRR = (horse, salePrice, useSaleDate = null) => {
+            const calculateIRR = (horse, salePrice) => {
                 if (!horse.purchaseDate) return null;
                 
                 const purchaseDate = new Date(horse.purchaseDate);
-                let endDate;
-                
-                // Priorité: date de vente effective > date de vente projetée > paramètre > aujourd'hui
-                if (horse.actualSaleDate) {
-                    endDate = new Date(horse.actualSaleDate);
-                } else if (useSaleDate) {
-                    endDate = new Date(useSaleDate);
-                } else if (horse.projectedSaleDate) {
-                    endDate = new Date(horse.projectedSaleDate);
-                } else {
-                    endDate = new Date();
-                }
-                
-                const yearsHeld = (endDate - purchaseDate) / (365.25 * 24 * 60 * 60 * 1000);
+                const today = new Date();
+                const yearsHeld = (today - purchaseDate) / (365.25 * 24 * 60 * 60 * 1000);
                 
                 if (yearsHeld <= 0) return 0;
                 
@@ -229,27 +206,17 @@
                 const received = salePrice * (1 - commission / 100);
                 const roi = received / totalExpenses;
                 
+                // IRR = (ROI^(1/years)) - 1
                 const irr = Math.pow(roi, 1 / yearsHeld) - 1;
                 return irr * 100;
             };
 
-            const getHoldingPeriod = (horse, useEndDate = null) => {
+            const getHoldingPeriod = (horse) => {
                 if (!horse.purchaseDate) return 'N/A';
                 
                 const purchaseDate = new Date(horse.purchaseDate);
-                let endDate;
-                
-                if (horse.actualSaleDate) {
-                    endDate = new Date(horse.actualSaleDate);
-                } else if (useEndDate) {
-                    endDate = new Date(useEndDate);
-                } else if (horse.projectedSaleDate) {
-                    endDate = new Date(horse.projectedSaleDate);
-                } else {
-                    endDate = new Date();
-                }
-                
-                const diffTime = Math.abs(endDate - purchaseDate);
+                const today = new Date();
+                const diffTime = Math.abs(today - purchaseDate);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 
                 const years = Math.floor(diffDays / 365);
@@ -393,20 +360,36 @@
                                                     selectedHorse?.id === horse.id
                                                         ? 'border-indigo-600 bg-indigo-50'
                                                         : 'border-gray-200 hover:border-indigo-300'
-                                                } ${horse.actualSaleDate ? 'bg-green-50 border-green-300' : ''}`}
+                                                }`}
                                                 onClick={() => setSelectedHorse(horse)}
                                             >
                                                 <div className="flex justify-between items-start">
                                                     <div className="flex-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <h3 className="font-semibold text-gray-800">{horse.name}</h3>
-                                                            {horse.actualSaleDate && (
-                                                                <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">VENDU</span>
-                                                            )}
-                                                        </div>
-                                                        <p className="text-xs text-gray-500 mt-1">
-                                                            Acheté: {horse.purchaseDate ? new Date(horse.purchaseDate).toLocaleDateString('fr-FR') : 'Non renseigné'}
-                                                        </p>
+                                                        <h3 className="font-semibold text-gray-800">{horse.name}</h3>
+                                                        {editingHorse === horse.id ? (
+                                                            <input
+                                                                type="date"
+                                                                defaultValue={horse.purchaseDate}
+                                                                onClick={(e) => e.stopPropagation()}
+                                                                onChange={(e) => updateHorsePurchaseDate(horse.id, e.target.value)}
+                                                                className="text-xs mt-1 px-2 py-1 border rounded"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                <p className="text-xs text-gray-500">
+                                                                    Acheté: {horse.purchaseDate ? new Date(horse.purchaseDate).toLocaleDateString('fr-FR') : 'Non renseigné'}
+                                                                </p>
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setEditingHorse(horse.id);
+                                                                    }}
+                                                                    className="text-gray-400 hover:text-indigo-600"
+                                                                >
+                                                                    <Edit size={12} />
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                         <p className="text-sm text-gray-600 mt-1">
                                                             {getTotalExpenses(horse).toLocaleString('fr-FR')} €
                                                         </p>
@@ -669,32 +652,6 @@
                                                 />
                                             </div>
 
-                                            <div className="mb-6">
-                                                <label className="block text-sm font-medium text-indigo-600 mb-2">📅 Date de vente prévisionnelle</label>
-                                                <input
-                                                    type="date"
-                                                    value={projectedSaleDate}
-                                                    onChange={(e) => {
-                                                        setProjectedSaleDate(e.target.value);
-                                                        updateHorseDates(selectedHorse.id, 'projectedSaleDate', e.target.value);
-                                                    }}
-                                                    className="w-full px-4 py-2 border-2 border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-indigo-50"
-                                                />
-                                            </div>
-
-                                            <div className="mb-6">
-                                                <label className="block text-sm font-medium text-green-600 mb-2">✅ Date de vente effective</label>
-                                                <input
-                                                    type="date"
-                                                    value={actualSaleDate}
-                                                    onChange={(e) => {
-                                                        setActualSaleDate(e.target.value);
-                                                        updateHorseDates(selectedHorse.id, 'actualSaleDate', e.target.value);
-                                                    }}
-                                                    className="w-full px-4 py-2 border-2 border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 bg-green-50"
-                                                />
-                                            </div>
-
                                             <div className="bg-indigo-50 p-4 rounded-lg mb-6">
                                                 <p className="text-sm text-gray-600 mb-1">Seuil de rentabilité</p>
                                                 <p className="text-3xl font-bold text-indigo-600">
@@ -716,8 +673,227 @@
                                                             const moic = calculateMOIC(price, getTotalExpenses(selectedHorse));
                                                             const irr = calculateIRR(selectedHorse, price);
                                                             const isProfit = roi >= 0;
-                                                            const useDate = selectedHorse.actualSaleDate || selectedHorse.projectedSaleDate;
                                                             return (
                                                                 <div
                                                                     className={`p-4 rounded-lg ${
-                                                                        isProfit ? 'bg-green-50 border-2 border-green-300'
+                                                                        isProfit ? 'bg-green-50 border-2 border-green-300' : 'bg-red-50 border-2 border-red-300'
+                                                                    }`}
+                                                                >
+                                                                    <div className="flex justify-between items-center mb-2">
+                                                                        <span className="text-lg font-semibold text-gray-800">
+                                                                            {price.toLocaleString('fr-FR')} €
+                                                                        </span>
+                                                                        <span className={`text-2xl ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                            {isProfit ? '✅' : '❌'}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-600 mb-1">
+                                                                        Commission ({commission}%): {(price * commission / 100).toLocaleString('fr-FR')} €
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-600 mb-2">
+                                                                        Vous recevez: {(price * (1 - commission / 100)).toLocaleString('fr-FR')} €
+                                                                    </div>
+                                                                    <div className={`text-lg font-bold ${isProfit ? 'text-green-600' : 'text-red-600'} mb-3`}>
+                                                                        {isProfit ? 'Bénéfice' : 'Perte'}: {roi.toLocaleString('fr-FR', {
+                                                                            minimumFractionDigits: 0,
+                                                                            maximumFractionDigits: 0
+                                                                        })} € ({roiPercentage >= 0 ? '+' : ''}{roiPercentage.toLocaleString('fr-FR', {
+                                                                            minimumFractionDigits: 1,
+                                                                            maximumFractionDigits: 1
+                                                                        })}%)
+                                                                    </div>
+                                                                    
+                                                                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-300">
+                                                                        <div className="bg-white p-3 rounded-lg">
+                                                                            <p className="text-xs text-gray-600 mb-1">MOIC</p>
+                                                                            <p className="text-xl font-bold text-indigo-600">
+                                                                                {moic.toFixed(2)}x
+                                                                            </p>
+                                                                        </div>
+                                                                        <div className="bg-white p-3 rounded-lg">
+                                                                            <p className="text-xs text-gray-600 mb-1">IRR annuel</p>
+                                                                            <p className="text-xl font-bold text-indigo-600">
+                                                                                {irr !== null ? `${irr.toFixed(1)}%` : 'N/A'}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    {selectedHorse.purchaseDate && (
+                                                                        <p className="text-xs text-gray-500 mt-2 text-center">
+                                                                            Période de détention: {getHoldingPeriod(selectedHorse)}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            <h3 className="font-semibold text-gray-800 mb-3">Scénarios de vente</h3>
+                                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                                                {scenariosPrices.map(price => {
+                                                    const roi = calculateROI(price, getTotalExpenses(selectedHorse));
+                                                    const roiPercentage = calculateROIPercentage(price, getTotalExpenses(selectedHorse));
+                                                    const moic = calculateMOIC(price, getTotalExpenses(selectedHorse));
+                                                    const irr = calculateIRR(selectedHorse, price);
+                                                    const isProfit = roi >= 0;
+                                                    return (
+                                                        <div
+                                                            key={price}
+                                                            className={`p-3 rounded-lg ${
+                                                                isProfit ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                                                            }`}
+                                                        >
+                                                            <div className="flex justify-between items-center mb-1">
+                                                                <span className="font-semibold text-gray-800">
+                                                                    {price.toLocaleString('fr-FR')} €
+                                                                </span>
+                                                                <span className={`text-sm ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                                                    {isProfit ? '✅' : '❌'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-sm text-gray-600">
+                                                                ROI: {roiPercentage >= 0 ? '+' : ''}{roiPercentage.toFixed(1)}% | MOIC: {moic.toFixed(2)}x
+                                                                {irr !== null && ` | IRR: ${irr.toFixed(1)}%`}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {showDashboard && (
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-indigo-100 text-sm mb-2">Capital total investi</p>
+                                        <p className="text-4xl font-bold">
+                                            {getGlobalStats().totalInvested.toLocaleString('fr-FR', {
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0
+                                            })} €
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-blue-100 text-sm mb-2">Nombre de chevaux</p>
+                                        <p className="text-4xl font-bold">{getGlobalStats().horseCount}</p>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-purple-100 text-sm mb-2">Investissement moyen</p>
+                                        <p className="text-4xl font-bold">
+                                            {getGlobalStats().avgPerHorse.toLocaleString('fr-FR', {
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0
+                                            })} €
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                                        <p className="text-green-100 text-sm mb-2">Plus gros investissement</p>
+                                        <p className="text-2xl font-bold truncate">
+                                            {getGlobalStats().mostExpensiveHorse?.name || '-'}
+                                        </p>
+                                        <p className="text-green-100 text-sm mt-1">
+                                            {getGlobalStats().mostExpensiveHorse 
+                                                ? getTotalExpenses(getGlobalStats().mostExpensiveHorse).toLocaleString('fr-FR') + ' €'
+                                                : '0 €'
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Comparaison des investissements</h2>
+                                    <div className="space-y-4">
+                                        {horses.sort((a, b) => getTotalExpenses(b) - getTotalExpenses(a)).map((horse, index) => {
+                                            const total = getTotalExpenses(horse);
+                                            const maxTotal = horses.length > 0 
+                                                ? Math.max(...horses.map(h => getTotalExpenses(h))) 
+                                                : 1;
+                                            const percentage = (total / maxTotal) * 100;
+                                            
+                                            return (
+                                                <div key={horse.id} className="space-y-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-semibold text-gray-800">{horse.name}</span>
+                                                        <span className="text-gray-600 font-medium">
+                                                            {total.toLocaleString('fr-FR')} €
+                                                        </span>
+                                                    </div>
+                                                    <div className="w-full bg-gray-200 rounded-full h-4">
+                                                        <div
+                                                            className="h-4 rounded-full"
+                                                            style={{
+                                                                width: `${percentage}%`,
+                                                                backgroundColor: getColorForIndex(index)
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Détails par cheval</h2>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr className="border-b-2 border-gray-200">
+                                                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Cheval</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Date achat</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Investissement</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Seuil rentabilité</th>
+                                                    <th className="text-right py-3 px-4 font-semibold text-gray-700">Dépenses</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {horses.map((horse) => {
+                                                    const total = getTotalExpenses(horse);
+                                                    const breakEven = getBreakEvenPrice(total);
+                                                    
+                                                    return (
+                                                        <tr key={horse.id} className="border-b border-gray-100 hover:bg-gray-50">
+                                                            <td className="py-3 px-4 font-medium text-gray-800">{horse.name}</td>
+                                                            <td className="py-3 px-4 text-right text-gray-600 text-sm">
+                                                                {horse.purchaseDate ? new Date(horse.purchaseDate).toLocaleDateString('fr-FR') : '-'}
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right text-gray-700">
+                                                                {total.toLocaleString('fr-FR')} €
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right text-indigo-600 font-medium">
+                                                                {breakEven.toLocaleString('fr-FR', {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0
+                                                                })} €
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right text-gray-600">
+                                                                {horse.expenses.length} ligne{horse.expenses.length > 1 ? 's' : ''}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
