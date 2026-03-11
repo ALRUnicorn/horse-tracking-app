@@ -3,35 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HorseFolio — Portfolio Management</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐴</text></svg>">
+    <title>EquiTrack — Portfolio Management</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300e5a0'/><stop offset='100%25' stop-color='%2300b4d8'/></linearGradient></defs><path d='M8 4a12 12 0 0 1 16 0v12c0 5-4 10-8 12-4-2-8-7-8-12Z' fill='none' stroke='url(%23g)' stroke-width='2.5' stroke-linecap='round'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
-    <style>
-        * { font-family: 'DM Sans', sans-serif; }
-        h1, h2, h3, .stat-value { font-family: 'Outfit', sans-serif; }
-        .brand-name { font-family: 'Playfair Display', serif; }
-        .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); }
-        .sold-badge { background: linear-gradient(135deg, #059669, #10b981); }
-        .pending-badge { background: linear-gradient(135deg, #d97706, #f59e0b); }
-        .active-badge { background: linear-gradient(135deg, #4f46e5, #6366f1); }
-        .metric-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 3px; }
-        .fo-section { border-left: 3px solid; padding-left: 1rem; }
-        .logo-mark { 
-            display: inline-flex; align-items: center; justify-content: center;
-            width: 44px; height: 44px; border-radius: 12px;
-            background: linear-gradient(135deg, #1e1b4b, #312e81);
-            color: white; font-size: 22px; box-shadow: 0 4px 12px rgba(30,27,75,0.3);
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#0a0b0f', 800: '#0f1117', 700: '#151720', 600: '#1a1d2b', 500: '#242838' },
+                        accent: { DEFAULT: '#00e5a0', dim: '#00c48c', bright: '#33ffba' },
+                        cyan: { DEFAULT: '#00b4d8', dim: '#0090ad' },
+                        surface: { DEFAULT: '#151720', light: '#1a1d2b', lighter: '#242838' }
+                    }
+                }
+            }
         }
+    </script>
+    <style>
+        * { font-family: 'Inter', -apple-system, sans-serif; }
+        h1, h2, h3, .stat-value, .brand { font-family: 'Space Grotesk', sans-serif; }
+        body { background: #0a0b0f; color: #e2e8f0; }
+        .card { background: rgba(21,23,32,0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.06); }
+        .card-inner { background: rgba(26,29,43,0.6); border: 1px solid rgba(255,255,255,0.04); }
+        .glow-accent { box-shadow: 0 0 20px rgba(0,229,160,0.15), 0 0 60px rgba(0,229,160,0.05); }
+        .glow-cyan { box-shadow: 0 0 20px rgba(0,180,216,0.15); }
+        .input-dark { background: rgba(10,11,15,0.6); border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0; }
+        .input-dark:focus { border-color: #00e5a0; box-shadow: 0 0 0 2px rgba(0,229,160,0.15); outline: none; }
+        .input-dark::placeholder { color: #4a5568; }
+        .sold-badge { background: linear-gradient(135deg, #00e5a0, #00c48c); color: #0a0b0f; }
+        .pending-badge { background: linear-gradient(135deg, #f59e0b, #d97706); color: #0a0b0f; }
+        .active-badge { background: linear-gradient(135deg, #00b4d8, #0090ad); color: #0a0b0f; }
+        .late-badge { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .metric-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,229,160,0.2); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,229,160,0.4); }
+        .fo-section { border-left: 2px solid; padding-left: 1rem; }
+        select.input-dark { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%234a5568' fill='none' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px; }
+        .gradient-text { background: linear-gradient(135deg, #00e5a0, #00b4d8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     </style>
 </head>
-<body class="bg-slate-50">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
@@ -53,6 +72,22 @@
         const Shield = ({ size = 24 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
         const Activity = ({ size = 24 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>;
 
+        // ═══ ABSTRACT HORSESHOE LOGO ═══
+        const Logo = ({ size = 40 }) => (
+            <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0" y1="0" x2="40" y2="40">
+                        <stop offset="0%" stopColor="#00e5a0"/>
+                        <stop offset="100%" stopColor="#00b4d8"/>
+                    </linearGradient>
+                </defs>
+                <path d="M10 6C10 6 6 10 6 18C6 26 12 33 20 36C28 33 34 26 34 18C34 10 30 6 30 6" stroke="url(#logoGrad)" strokeWidth="3" strokeLinecap="round" fill="none"/>
+                <circle cx="10" cy="6" r="2.5" fill="#00e5a0"/>
+                <circle cx="30" cy="6" r="2.5" fill="#00b4d8"/>
+                <path d="M16 18L20 22L28 14" stroke="url(#logoGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+        );
+
         function App() {
             const [horses, setHorses] = useState([]);
             const [horseName, setHorseName] = useState('');
@@ -64,481 +99,269 @@
             const [customPrice, setCustomPrice] = useState('');
             const [activeView, setActiveView] = useState('horses');
             const [showAnalytics, setShowAnalytics] = useState(false);
-            const [editingHorse, setEditingHorse] = useState(null);
             const [editingField, setEditingField] = useState(null);
             const [selectedHorseId, setSelectedHorseId] = useState(null);
             const [foEstimatedValues, setFoEstimatedValues] = useState({});
 
-            const selectedHorse = useMemo(() => {
-                if (!selectedHorseId) return null;
-                return horses.find(h => h.id === selectedHorseId) || null;
-            }, [horses, selectedHorseId]);
+            const selectedHorse = useMemo(() => selectedHorseId ? horses.find(h => h.id === selectedHorseId) || null : null, [horses, selectedHorseId]);
 
             useEffect(() => { setHorses(JSON.parse(localStorage.getItem('horses') || '[]')); }, []);
             useEffect(() => { localStorage.setItem('horses', JSON.stringify(horses)); }, [horses]);
 
-            // ═══ HORSE CRUD ═══
-            const addHorse = () => {
-                if (!horseName.trim()) return;
-                setHorses([...horses, { id: Date.now(), name: horseName, purchaseDate, expectedSaleDate: '', actualSaleDate: '', actualSalePrice: '', status: 'active', expenses: [] }]);
-                setHorseName(''); setPurchaseDate(new Date().toISOString().split('T')[0]);
-            };
-            const updateHorseField = (horseId, field, value) => {
-                setHorses(horses.map(h => {
-                    if (h.id !== horseId) return h;
-                    const updated = { ...h, [field]: value };
-                    if (field === 'actualSaleDate') updated.status = value ? 'sold' : 'active';
-                    return updated;
-                }));
-                setEditingField(null);
-            };
+            // ═══ CRUD ═══
+            const addHorse = () => { if (!horseName.trim()) return; setHorses([...horses, { id: Date.now(), name: horseName, purchaseDate, expectedSaleDate: '', actualSaleDate: '', actualSalePrice: '', status: 'active', expenses: [] }]); setHorseName(''); setPurchaseDate(new Date().toISOString().split('T')[0]); };
+            const updateHorseField = (horseId, field, value) => { setHorses(horses.map(h => { if (h.id !== horseId) return h; const u = { ...h, [field]: value }; if (field === 'actualSaleDate') u.status = value ? 'sold' : 'active'; return u; })); setEditingField(null); };
             const deleteHorse = (id) => { setHorses(horses.filter(h => h.id !== id)); if (selectedHorseId === id) setSelectedHorseId(null); };
-            const addExpense = () => {
-                if (!expenseName.trim() || !expenseAmount || !selectedHorse) return;
-                setHorses(horses.map(h => h.id === selectedHorse.id ? { ...h, expenses: [...h.expenses, { id: Date.now(), name: expenseName, amount: parseFloat(expenseAmount), date: expenseDate }] } : h));
-                setExpenseName(''); setExpenseAmount(''); setExpenseDate(new Date().toISOString().split('T')[0]);
-            };
-            const deleteExpense = (expenseId) => {
-                setHorses(horses.map(h => h.id === selectedHorse.id ? { ...h, expenses: h.expenses.filter(e => e.id !== expenseId) } : h));
-            };
+            const addExpense = () => { if (!expenseName.trim() || !expenseAmount || !selectedHorse) return; setHorses(horses.map(h => h.id === selectedHorse.id ? { ...h, expenses: [...h.expenses, { id: Date.now(), name: expenseName, amount: parseFloat(expenseAmount), date: expenseDate }] } : h)); setExpenseName(''); setExpenseAmount(''); setExpenseDate(new Date().toISOString().split('T')[0]); };
+            const deleteExpense = (eid) => { setHorses(horses.map(h => h.id === selectedHorse.id ? { ...h, expenses: h.expenses.filter(e => e.id !== eid) } : h)); };
 
             // ═══ CALCULATIONS ═══
-            const getTotalExpenses = (horse) => horse.expenses.reduce((s, e) => s + e.amount, 0);
-            const getBreakEvenPrice = (totalExpenses) => totalExpenses / (1 - commission / 100);
-            const calculateROI = (salePrice, totalExpenses) => salePrice * (1 - commission / 100) - totalExpenses;
-            const calculateROIPercentage = (salePrice, totalExpenses) => totalExpenses === 0 ? 0 : (calculateROI(salePrice, totalExpenses) / totalExpenses) * 100;
-            const calculateMOIC = (salePrice, totalExpenses) => totalExpenses === 0 ? 0 : (salePrice * (1 - commission / 100)) / totalExpenses;
+            const getTotalExpenses = (h) => h.expenses.reduce((s, e) => s + e.amount, 0);
+            const getBreakEvenPrice = (t) => t / (1 - commission / 100);
+            const calculateROI = (sp, t) => sp * (1 - commission / 100) - t;
+            const calculateROIPercentage = (sp, t) => t === 0 ? 0 : (calculateROI(sp, t) / t) * 100;
+            const calculateMOIC = (sp, t) => t === 0 ? 0 : (sp * (1 - commission / 100)) / t;
+            const getHoldingPeriodDays = (h) => { if (!h.purchaseDate) return 0; return Math.max(0, Math.ceil(((h.actualSaleDate ? new Date(h.actualSaleDate) : new Date()) - new Date(h.purchaseDate)) / 86400000)); };
+            const getHoldingPeriodText = (h) => { const d = getHoldingPeriodDays(h); if (d === 0) return 'N/A'; const y = Math.floor(d/365), m = Math.floor((d%365)/30), r = d%30; if (y > 0) return `${y}a ${m}m`; if (m > 0) return `${m}m ${r}j`; return `${d}j`; };
+            const getExpectedHoldingText = (h) => { if (!h.purchaseDate || !h.expectedSaleDate) return null; const d = Math.max(0, Math.ceil((new Date(h.expectedSaleDate) - new Date(h.purchaseDate)) / 86400000)); const y = Math.floor(d/365), m = Math.floor((d%365)/30); if (y > 0) return `${y}a ${m}m`; if (m > 0) return `${m}m ${d%30}j`; return `${d}j`; };
+            const getDaysUntilExpectedSale = (h) => { if (!h.expectedSaleDate || h.actualSaleDate) return null; return Math.ceil((new Date(h.expectedSaleDate) - new Date()) / 86400000); };
+            const calculateIRR = (h, sp) => { if (!h.purchaseDate) return null; const yrs = getHoldingPeriodDays(h) / 365.25; if (yrs <= 0) return 0; const t = getTotalExpenses(h); if (t === 0) return 0; const r = (sp * (1 - commission / 100)) / t; if (r <= 0) return -100; return (Math.pow(r, 1/yrs) - 1) * 100; };
+            const getCapitalTurnover = () => { const sold = horses.filter(h => h.actualSaleDate && h.actualSalePrice); if (!sold.length) return 0; const p = sold.reduce((s, h) => s + (parseFloat(h.actualSalePrice)||0) * (1 - commission/100), 0); const d = horses.reduce((s, h) => s + getTotalExpenses(h), 0); return d === 0 ? 0 : p / d; };
+            const getVelocityOfDeals = () => { const sold = horses.filter(h => h.actualSaleDate && h.purchaseDate); if (!sold.length) return null; const td = sold.reduce((s, h) => s + getHoldingPeriodDays(h), 0); const a = td / sold.length; return { avgDays: a, avgMonths: a / 30.44, dealsPerYear: 365.25 / (a||1), count: sold.length }; };
 
-            const getHoldingPeriodDays = (horse) => {
-                if (!horse.purchaseDate) return 0;
-                const end = horse.actualSaleDate ? new Date(horse.actualSaleDate) : new Date();
-                return Math.max(0, Math.ceil((end - new Date(horse.purchaseDate)) / 86400000));
-            };
-            const getHoldingPeriodText = (horse) => {
-                const d = getHoldingPeriodDays(horse);
-                if (d === 0) return 'N/A';
-                const y = Math.floor(d / 365), m = Math.floor((d % 365) / 30), r = d % 30;
-                if (y > 0) return `${y}a ${m}m`;
-                if (m > 0) return `${m}m ${r}j`;
-                return `${d}j`;
-            };
-            const getExpectedHoldingText = (horse) => {
-                if (!horse.purchaseDate || !horse.expectedSaleDate) return null;
-                const d = Math.max(0, Math.ceil((new Date(horse.expectedSaleDate) - new Date(horse.purchaseDate)) / 86400000));
-                const y = Math.floor(d / 365), m = Math.floor((d % 365) / 30);
-                if (y > 0) return `${y}a ${m}m`; if (m > 0) return `${m}m ${d % 30}j`; return `${d}j`;
-            };
-            const getDaysUntilExpectedSale = (horse) => {
-                if (!horse.expectedSaleDate || horse.actualSaleDate) return null;
-                return Math.ceil((new Date(horse.expectedSaleDate) - new Date()) / 86400000);
-            };
-            const calculateIRR = (horse, salePrice) => {
-                if (!horse.purchaseDate) return null;
-                const yrs = getHoldingPeriodDays(horse) / 365.25;
-                if (yrs <= 0) return 0;
-                const total = getTotalExpenses(horse);
-                if (total === 0) return 0;
-                const roi = (salePrice * (1 - commission / 100)) / total;
-                if (roi <= 0) return -100;
-                return (Math.pow(roi, 1 / yrs) - 1) * 100;
-            };
-
-            const getCapitalTurnover = () => {
-                const sold = horses.filter(h => h.actualSaleDate && h.actualSalePrice);
-                if (sold.length === 0) return 0;
-                const proceeds = sold.reduce((s, h) => s + (parseFloat(h.actualSalePrice) || 0) * (1 - commission / 100), 0);
-                const deployed = horses.reduce((s, h) => s + getTotalExpenses(h), 0);
-                return deployed === 0 ? 0 : proceeds / deployed;
-            };
-            const getVelocityOfDeals = () => {
-                const sold = horses.filter(h => h.actualSaleDate && h.purchaseDate);
-                if (sold.length === 0) return null;
-                const totalDays = sold.reduce((s, h) => s + getHoldingPeriodDays(h), 0);
-                const avg = totalDays / sold.length;
-                return { avgDays: avg, avgMonths: avg / 30.44, dealsPerYear: 365.25 / (avg || 1), count: sold.length };
-            };
-
-            // ═══ FAMILY OFFICE METRICS ═══
+            // ═══ FO METRICS ═══
             const getFOMetrics = () => {
                 const totalPaidIn = horses.reduce((s, h) => s + getTotalExpenses(h), 0);
-                const soldHorses = horses.filter(h => h.actualSaleDate && h.actualSalePrice);
-                const activeHorses = horses.filter(h => !h.actualSaleDate);
-
-                // DPI - Distributed to Paid-In (realized only)
-                const totalDistributed = soldHorses.reduce((s, h) => s + (parseFloat(h.actualSalePrice) || 0) * (1 - commission / 100), 0);
+                const soldH = horses.filter(h => h.actualSaleDate && h.actualSalePrice);
+                const activeH = horses.filter(h => !h.actualSaleDate);
+                const totalDistributed = soldH.reduce((s, h) => s + (parseFloat(h.actualSalePrice)||0) * (1-commission/100), 0);
                 const dpi = totalPaidIn > 0 ? totalDistributed / totalPaidIn : 0;
-
-                // RVPI - Residual Value to Paid-In (unrealized - estimated)
-                const totalResidualValue = activeHorses.reduce((s, h) => {
-                    const est = parseFloat(foEstimatedValues[h.id]) || 0;
-                    return s + est * (1 - commission / 100);
-                }, 0);
+                const totalResidualValue = activeH.reduce((s, h) => s + (parseFloat(foEstimatedValues[h.id])||0) * (1-commission/100), 0);
                 const rvpi = totalPaidIn > 0 ? totalResidualValue / totalPaidIn : 0;
-
-                // TVPI = DPI + RVPI
                 const tvpi = dpi + rvpi;
-
-                // Win rate
-                const wins = soldHorses.filter(h => {
-                    const pl = calculateROI(parseFloat(h.actualSalePrice) || 0, getTotalExpenses(h));
-                    return pl >= 0;
-                });
-                const winRate = soldHorses.length > 0 ? (wins.length / soldHorses.length) * 100 : 0;
-
-                // P&L dispersion
-                const pls = soldHorses.map(h => calculateROI(parseFloat(h.actualSalePrice) || 0, getTotalExpenses(h)));
-                const sortedPLs = [...pls].sort((a, b) => a - b);
+                const wins = soldH.filter(h => calculateROI(parseFloat(h.actualSalePrice)||0, getTotalExpenses(h)) >= 0);
+                const winRate = soldH.length > 0 ? (wins.length / soldH.length) * 100 : 0;
+                const pls = soldH.map(h => calculateROI(parseFloat(h.actualSalePrice)||0, getTotalExpenses(h)));
+                const sorted = [...pls].sort((a,b) => a-b);
                 const bestDeal = pls.length > 0 ? Math.max(...pls) : 0;
                 const worstDeal = pls.length > 0 ? Math.min(...pls) : 0;
-                const medianDeal = pls.length > 0 ? sortedPLs[Math.floor(sortedPLs.length / 2)] : 0;
-                const avgGain = wins.length > 0 ? wins.reduce((s, h) => s + calculateROI(parseFloat(h.actualSalePrice) || 0, getTotalExpenses(h)), 0) / wins.length : 0;
-                const losses = soldHorses.filter(h => calculateROI(parseFloat(h.actualSalePrice) || 0, getTotalExpenses(h)) < 0);
-                const avgLoss = losses.length > 0 ? losses.reduce((s, h) => s + Math.abs(calculateROI(parseFloat(h.actualSalePrice) || 0, getTotalExpenses(h))), 0) / losses.length : 0;
+                const medianDeal = pls.length > 0 ? sorted[Math.floor(sorted.length/2)] : 0;
+                const avgGain = wins.length > 0 ? wins.reduce((s,h) => s + calculateROI(parseFloat(h.actualSalePrice)||0, getTotalExpenses(h)), 0) / wins.length : 0;
+                const lossH = soldH.filter(h => calculateROI(parseFloat(h.actualSalePrice)||0, getTotalExpenses(h)) < 0);
+                const avgLoss = lossH.length > 0 ? lossH.reduce((s,h) => s + Math.abs(calculateROI(parseFloat(h.actualSalePrice)||0, getTotalExpenses(h))), 0) / lossH.length : 0;
                 const gainLossRatio = avgLoss > 0 ? avgGain / avgLoss : avgGain > 0 ? Infinity : 0;
-
-                // Net margin
-                const totalGrossRevenue = soldHorses.reduce((s, h) => s + (parseFloat(h.actualSalePrice) || 0), 0);
-                const totalCommissions = soldHorses.reduce((s, h) => s + (parseFloat(h.actualSalePrice) || 0) * commission / 100, 0);
-                const soldExpenses = soldHorses.reduce((s, h) => s + getTotalExpenses(h), 0);
-                const netMargin = totalGrossRevenue > 0 ? ((totalDistributed - soldExpenses) / totalGrossRevenue) * 100 : 0;
-
-                // Avg monthly cost per horse
-                const avgMonthlyCost = horses.length > 0 ? horses.reduce((s, h) => {
-                    const months = Math.max(1, getHoldingPeriodDays(h) / 30.44);
-                    return s + getTotalExpenses(h) / months;
-                }, 0) / horses.length : 0;
-
-                // IRR by deal generation (sorted by purchase date)
-                const soldSorted = [...soldHorses].sort((a, b) => new Date(a.purchaseDate) - new Date(b.purchaseDate));
-                const irrByDeal = soldSorted.map((h, i) => ({
-                    name: h.name,
-                    irr: calculateIRR(h, parseFloat(h.actualSalePrice) || 0) || 0,
-                    index: i + 1
-                }));
-
-                // Avg time to break-even (for sold horses that made profit)
-                const avgBreakEvenMonths = wins.length > 0 ? wins.reduce((s, h) => s + getHoldingPeriodDays(h) / 30.44, 0) / wins.length : 0;
-
-                // J-Curve data: cumulative cash flow over time
+                const totalGross = soldH.reduce((s,h) => s + (parseFloat(h.actualSalePrice)||0), 0);
+                const totalComm = soldH.reduce((s,h) => s + (parseFloat(h.actualSalePrice)||0) * commission/100, 0);
+                const netMargin = totalGross > 0 ? ((totalDistributed - soldH.reduce((s,h)=>s+getTotalExpenses(h),0)) / totalGross) * 100 : 0;
+                const avgMonthlyCost = horses.length > 0 ? horses.reduce((s,h) => s + getTotalExpenses(h) / Math.max(1, getHoldingPeriodDays(h)/30.44), 0) / horses.length : 0;
+                const soldSorted = [...soldH].sort((a,b) => new Date(a.purchaseDate) - new Date(b.purchaseDate));
+                const irrByDeal = soldSorted.map((h,i) => ({ name: h.name, irr: calculateIRR(h, parseFloat(h.actualSalePrice)||0)||0, index: i+1 }));
+                const avgBreakEvenMonths = wins.length > 0 ? wins.reduce((s,h) => s + getHoldingPeriodDays(h)/30.44, 0) / wins.length : 0;
                 const allEvents = [];
-                horses.forEach(h => {
-                    h.expenses.forEach(e => {
-                        allEvents.push({ date: e.date || h.purchaseDate, amount: -e.amount });
-                    });
-                    if (h.actualSaleDate && h.actualSalePrice) {
-                        allEvents.push({ date: h.actualSaleDate, amount: (parseFloat(h.actualSalePrice) || 0) * (1 - commission / 100) });
-                    }
-                });
-                allEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
-                let cumulative = 0;
-                const jCurveData = allEvents.map(e => { cumulative += e.amount; return { date: e.date, cumulative }; });
-
-                // Pipeline: upcoming expected sales
-                const pipeline = activeHorses
-                    .filter(h => h.expectedSaleDate)
-                    .sort((a, b) => new Date(a.expectedSaleDate) - new Date(b.expectedSaleDate))
-                    .map(h => ({
-                        ...h,
-                        daysLeft: getDaysUntilExpectedSale(h),
-                        estimatedValue: parseFloat(foEstimatedValues[h.id]) || 0,
-                        totalInvested: getTotalExpenses(h)
-                    }));
-
-                return {
-                    totalPaidIn, totalDistributed, totalResidualValue,
-                    dpi, rvpi, tvpi,
-                    winRate, wins: wins.length, losses: losses.length,
-                    bestDeal, worstDeal, medianDeal, avgGain, avgLoss, gainLossRatio,
-                    netMargin, totalCommissions, avgMonthlyCost,
-                    irrByDeal, avgBreakEvenMonths,
-                    jCurveData, pipeline,
-                    soldCount: soldHorses.length, activeCount: activeHorses.length
-                };
+                horses.forEach(h => { h.expenses.forEach(e => allEvents.push({ date: e.date||h.purchaseDate, amount: -e.amount })); if (h.actualSaleDate && h.actualSalePrice) allEvents.push({ date: h.actualSaleDate, amount: (parseFloat(h.actualSalePrice)||0)*(1-commission/100) }); });
+                allEvents.sort((a,b) => new Date(a.date)-new Date(b.date));
+                let cum = 0; const jCurveData = allEvents.map(e => { cum += e.amount; return { date: e.date, cumulative: cum }; });
+                const pipeline = activeH.filter(h=>h.expectedSaleDate).sort((a,b)=>new Date(a.expectedSaleDate)-new Date(b.expectedSaleDate)).map(h=>({...h, daysLeft: getDaysUntilExpectedSale(h), estimatedValue: parseFloat(foEstimatedValues[h.id])||0, totalInvested: getTotalExpenses(h)}));
+                return { totalPaidIn, totalDistributed, totalResidualValue, dpi, rvpi, tvpi, winRate, wins: wins.length, losses: lossH.length, bestDeal, worstDeal, medianDeal, avgGain, avgLoss, gainLossRatio, netMargin, totalCommissions: totalComm, avgMonthlyCost, irrByDeal, avgBreakEvenMonths, jCurveData, pipeline, soldCount: soldH.length, activeCount: activeH.length };
             };
 
-            // ═══ ANALYTICS HELPERS ═══
-            const getCategoryBreakdown = (horse) => {
-                const cat = {}; horse.expenses.forEach(e => { cat[e.name] = (cat[e.name] || 0) + e.amount; });
-                return Object.entries(cat).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount);
-            };
-            const getMonthlyExpenses = (horse) => {
-                const m = {}; horse.expenses.forEach(e => { const d = new Date(e.date || Date.now()); const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; m[k] = (m[k]||0) + e.amount; });
-                return Object.entries(m).sort(([a],[b]) => a.localeCompare(b)).map(([month, amount]) => ({month, amount}));
-            };
-            const getMonthlyAverage = (horse) => { const m = getMonthlyExpenses(horse); return m.length === 0 ? 0 : m.reduce((s,x)=>s+x.amount,0)/m.length; };
+            // ═══ HELPERS ═══
+            const getCategoryBreakdown = (h) => { const c = {}; h.expenses.forEach(e => { c[e.name] = (c[e.name]||0) + e.amount; }); return Object.entries(c).map(([n,a])=>({name:n,amount:a})).sort((a,b)=>b.amount-a.amount); };
+            const getMonthlyExpenses = (h) => { const m = {}; h.expenses.forEach(e => { const d = new Date(e.date||Date.now()); const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; m[k] = (m[k]||0)+e.amount; }); return Object.entries(m).sort(([a],[b])=>a.localeCompare(b)).map(([mo,am])=>({month:mo,amount:am})); };
+            const getMonthlyAverage = (h) => { const m = getMonthlyExpenses(h); return m.length === 0 ? 0 : m.reduce((s,x)=>s+x.amount,0)/m.length; };
             const formatMonthLabel = (mk) => { const [y,m] = mk.split('-'); return new Date(y,parseInt(m)-1).toLocaleDateString('fr-FR',{month:'short',year:'2-digit'}); };
-            const getColorForIndex = (i) => ['#4338ca','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#db2777','#0d9488','#ea580c','#4f46e5'][i%10];
-
-            const getGlobalStats = () => {
-                const totalInvested = horses.reduce((s, h) => s + getTotalExpenses(h), 0);
-                const sold = horses.filter(h => h.status === 'sold' && h.actualSalePrice);
-                const totalRevenue = sold.reduce((s, h) => s + (parseFloat(h.actualSalePrice)||0) * (1 - commission/100), 0);
-                const totalPL = totalRevenue - sold.reduce((s, h) => s + getTotalExpenses(h), 0);
-                return { totalInvested, horseCount: horses.length, activeCount: horses.filter(h => h.status !== 'sold').length, soldCount: sold.length, totalRevenue, totalPL };
-            };
-
+            const getColorForIndex = (i) => ['#00e5a0','#00b4d8','#a78bfa','#f59e0b','#ef4444','#ec4899','#06b6d4','#10b981','#f97316','#8b5cf6'][i%10];
+            const getGlobalStats = () => { const ti = horses.reduce((s,h)=>s+getTotalExpenses(h),0); const sold = horses.filter(h=>h.status==='sold'&&h.actualSalePrice); const tr = sold.reduce((s,h)=>s+(parseFloat(h.actualSalePrice)||0)*(1-commission/100),0); const pl = tr - sold.reduce((s,h)=>s+getTotalExpenses(h),0); return { totalInvested:ti, horseCount:horses.length, activeCount:horses.filter(h=>h.status!=='sold').length, soldCount:sold.length, totalRevenue:tr, totalPL:pl }; };
             const scenariosPrices = [10000, 12500, 15000, 17500, 20000, 25000];
-
-            // ═══ FORMAT HELPERS ═══
-            const formatDateFR = (dateStr) => {
-                if (!dateStr) return '—';
-                const d = new Date(dateStr);
-                return `${d.getDate()} ${['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'][d.getMonth()]} ${d.getFullYear()}`;
-            };
+            const formatDateFR = (ds) => { if (!ds) return '—'; const d = new Date(ds); return `${d.getDate()} ${['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'][d.getMonth()]} ${d.getFullYear()}`; };
             const fmt = (n) => n.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
             const fmtPct = (n) => `${n >= 0 ? '+' : ''}${n.toFixed(1)}%`;
 
             // ═══ COMPONENTS ═══
             const EditableDate = ({ horse, field, label }) => {
-                const isEditing = editingField?.horseId === horse.id && editingField?.field === field;
-                const value = horse[field];
-                if (isEditing) {
-                    const parts = value ? value.split('-') : ['2025','01','01'];
-                    return (
-                        <span className="inline-flex items-center gap-1 flex-wrap" onClick={e => e.stopPropagation()}>
-                            <span className="text-xs text-slate-500 mr-1">{label}:</span>
-                            <select defaultValue={parts[2]} onChange={e => updateHorseField(horse.id, field, `${parts[0]}-${parts[1]}-${e.target.value}`)} className="text-xs px-1 py-0.5 border border-indigo-300 rounded bg-white outline-none">
-                                {Array.from({length:31},(_,i)=>i+1).map(d => <option key={d} value={String(d).padStart(2,'0')}>{d}</option>)}
-                            </select>
-                            <select defaultValue={parts[1]} onChange={e => updateHorseField(horse.id, field, `${parts[0]}-${e.target.value}-${parts[2]}`)} className="text-xs px-1 py-0.5 border border-indigo-300 rounded bg-white outline-none">
-                                {['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'].map((m,i) => <option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}
-                            </select>
-                            <select defaultValue={parts[0]} onChange={e => updateHorseField(horse.id, field, `${e.target.value}-${parts[1]}-${parts[2]}`)} className="text-xs px-1 py-0.5 border border-indigo-300 rounded bg-white outline-none">
-                                {Array.from({length:20},(_,i)=>2015+i).map(y => <option key={y} value={y}>{y}</option>)}
-                            </select>
-                            <button onClick={e => { e.stopPropagation(); setEditingField(null); }} className="text-indigo-500 hover:text-indigo-700 text-xs ml-1">✓</button>
-                        </span>
-                    );
-                }
-                return (
-                    <span className="inline-flex items-center gap-1 cursor-pointer group" onClick={e => { e.stopPropagation(); setEditingField({ horseId: horse.id, field }); }}>
-                        <span className="text-xs text-slate-500">{label}: {formatDateFR(value)}</span>
-                        <span className="text-slate-300 group-hover:text-indigo-500 transition"><Edit size={10} /></span>
+                const isEd = editingField?.horseId === horse.id && editingField?.field === field;
+                const val = horse[field];
+                if (isEd) { const p = val ? val.split('-') : ['2025','01','01']; return (
+                    <span className="inline-flex items-center gap-1 flex-wrap" onClick={e=>e.stopPropagation()}>
+                        <span className="text-xs text-gray-500 mr-1">{label}:</span>
+                        {[{ v: p[2], opts: Array.from({length:31},(_,i)=>({v:String(i+1).padStart(2,'0'),l:i+1})), idx: 2 },
+                          { v: p[1], opts: ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'].map((m,i)=>({v:String(i+1).padStart(2,'0'),l:m})), idx: 1 },
+                          { v: p[0], opts: Array.from({length:20},(_,i)=>({v:String(2015+i),l:2015+i})), idx: 0 }
+                        ].map((s,si) => <select key={si} defaultValue={s.v} onChange={e=>{const np=[...p];np[s.idx]=e.target.value;updateHorseField(horse.id,field,np.join('-'));}} className="input-dark text-xs px-1.5 py-0.5 rounded">{s.opts.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select>)}
+                        <button onClick={e=>{e.stopPropagation();setEditingField(null);}} className="text-green-400 hover:text-green-300 text-xs ml-1">✓</button>
                     </span>
-                );
+                ); }
+                return <span className="inline-flex items-center gap-1 cursor-pointer group" onClick={e=>{e.stopPropagation();setEditingField({horseId:horse.id,field});}}><span className="text-xs text-gray-500">{label}: <span className="text-gray-400">{formatDateFR(val)}</span></span><span className="text-gray-600 group-hover:text-green-400 transition"><Edit size={10}/></span></span>;
             };
             const EditablePrice = ({ horse }) => {
-                const isEditing = editingField?.horseId === horse.id && editingField?.field === 'actualSalePrice';
-                if (isEditing) return (
-                    <input type="number" defaultValue={horse.actualSalePrice} autoFocus placeholder="Prix" onClick={e => e.stopPropagation()}
-                        onBlur={e => updateHorseField(horse.id, 'actualSalePrice', e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') updateHorseField(horse.id, 'actualSalePrice', e.target.value); }}
-                        className="text-xs px-2 py-1 border border-indigo-300 rounded bg-white w-24 focus:ring-2 focus:ring-indigo-400 outline-none" />
-                );
-                return (
-                    <span className="inline-flex items-center gap-1 cursor-pointer group" onClick={e => { e.stopPropagation(); setEditingField({ horseId: horse.id, field: 'actualSalePrice' }); }}>
-                        <span className="text-xs text-slate-500">Vente: {horse.actualSalePrice ? `${fmt(parseFloat(horse.actualSalePrice))} €` : '—'}</span>
-                        <span className="text-slate-300 group-hover:text-indigo-500 transition"><Edit size={10} /></span>
-                    </span>
-                );
+                const isEd = editingField?.horseId === horse.id && editingField?.field === 'actualSalePrice';
+                if (isEd) return <input type="number" defaultValue={horse.actualSalePrice} autoFocus placeholder="Prix" onClick={e=>e.stopPropagation()} onBlur={e=>updateHorseField(horse.id,'actualSalePrice',e.target.value)} onKeyDown={e=>{if(e.key==='Enter')updateHorseField(horse.id,'actualSalePrice',e.target.value);}} className="input-dark text-xs px-2 py-1 rounded w-24"/>;
+                return <span className="inline-flex items-center gap-1 cursor-pointer group" onClick={e=>{e.stopPropagation();setEditingField({horseId:horse.id,field:'actualSalePrice'});}}><span className="text-xs text-gray-500">Vente: <span className="text-gray-400">{horse.actualSalePrice?`${fmt(parseFloat(horse.actualSalePrice))} €`:'—'}</span></span><span className="text-gray-600 group-hover:text-green-400 transition"><Edit size={10}/></span></span>;
             };
             const StatusBadge = ({ horse }) => {
-                if (horse.actualSaleDate) return <span className="sold-badge text-white text-xs px-2 py-0.5 rounded-full font-medium">Vendu</span>;
+                if (horse.actualSaleDate) return <span className="sold-badge text-xs px-2 py-0.5 rounded-full font-semibold">Vendu</span>;
                 const d = getDaysUntilExpectedSale(horse);
-                if (d !== null && d <= 30 && d >= 0) return <span className="pending-badge text-white text-xs px-2 py-0.5 rounded-full font-medium">Bientôt</span>;
-                if (d !== null && d < 0) return <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">En retard</span>;
-                return <span className="active-badge text-white text-xs px-2 py-0.5 rounded-full font-medium">Actif</span>;
+                if (d !== null && d <= 30 && d >= 0) return <span className="pending-badge text-xs px-2 py-0.5 rounded-full font-semibold">Bientôt</span>;
+                if (d !== null && d < 0) return <span className="late-badge text-xs px-2 py-0.5 rounded-full font-semibold">En retard</span>;
+                return <span className="active-badge text-xs px-2 py-0.5 rounded-full font-semibold">Actif</span>;
             };
-
-            // ═══ GAUGE COMPONENT ═══
-            const Gauge = ({ value, max, label, color1 = '#4338ca', color2 = '#06b6d4', size = 110 }) => {
-                const pct = Math.min(Math.abs(value), max) / max;
-                const circ = Math.PI * 2 * 42;
-                return (
-                    <svg viewBox="0 0 120 120" width={size} height={size}>
-                        <circle cx="60" cy="60" r="42" fill="none" stroke="#e2e8f0" strokeWidth="12" />
-                        <circle cx="60" cy="60" r="42" fill="none" stroke={`url(#g_${label})`} strokeWidth="12"
-                            strokeDasharray={`${pct * circ} ${circ}`} strokeLinecap="round" transform="rotate(-90 60 60)" />
-                        <defs><linearGradient id={`g_${label}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={color1}/><stop offset="100%" stopColor={color2}/></linearGradient></defs>
-                        <text x="60" y="55" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#1e293b">{typeof value === 'number' ? (value >= 10 ? value.toFixed(1) : value.toFixed(2)) : value}</text>
-                        <text x="60" y="72" textAnchor="middle" fontSize="9" fill="#94a3b8">{label}</text>
-                    </svg>
-                );
+            const Gauge = ({ value, max, label, c1 = '#00e5a0', c2 = '#00b4d8', size = 110 }) => {
+                const pct = Math.min(Math.abs(value), max) / max; const circ = Math.PI*2*42; const id = `g_${label.replace(/\s/g,'')}`;
+                return <svg viewBox="0 0 120 120" width={size} height={size}><circle cx="60" cy="60" r="42" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10"/><circle cx="60" cy="60" r="42" fill="none" stroke={`url(#${id})`} strokeWidth="10" strokeDasharray={`${pct*circ} ${circ}`} strokeLinecap="round" transform="rotate(-90 60 60)"/><defs><linearGradient id={id} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={c1}/><stop offset="100%" stopColor={c2}/></linearGradient></defs><text x="60" y="55" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#e2e8f0">{typeof value==='number'?(value>=10?value.toFixed(1):value.toFixed(2)):value}</text><text x="60" y="72" textAnchor="middle" fontSize="9" fill="#64748b">{label}</text></svg>;
             };
-
-            // ═══ FO METRIC BOX ═══
-            const FOMetric = ({ label, value, sub, color = 'indigo', tooltip }) => (
-                <div className={`metric-card bg-${color}-50 border border-${color}-100 rounded-xl p-4`} title={tooltip}>
-                    <p className="text-xs text-slate-500 mb-1">{label}</p>
-                    <p className={`text-xl font-extrabold stat-value text-${color}-600`}>{value}</p>
-                    {sub && <p className="text-xs text-slate-400 mt-1">{sub}</p>}
-                </div>
-            );
 
             // ═══ RENDER ═══
             return (
-                <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 p-4 md:p-6">
+                <div className="min-h-screen p-4 md:p-6">
                     <div className="max-w-7xl mx-auto">
 
                         {/* HEADER */}
-                        <div className="glass rounded-2xl shadow-lg shadow-indigo-100/50 p-6 mb-6 border border-white/60">
+                        <div className="card rounded-2xl p-5 mb-6">
                             <div className="flex justify-between items-center flex-wrap gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="logo-mark">🐴</div>
+                                <div className="flex items-center gap-3">
+                                    <Logo size={38}/>
                                     <div>
-                                        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 mb-0.5 tracking-tight">
-                                            <span className="brand-name">Horse</span><span className="brand-name text-indigo-600">Folio</span>
-                                        </h1>
-                                        <p className="text-slate-500 text-sm">Portfolio Management · ROI · MOIC · IRR · TVPI · DPI</p>
+                                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight brand"><span className="text-white">Equi</span><span className="gradient-text">Track</span></h1>
+                                        <p className="text-gray-500 text-xs mt-0.5">Portfolio Management · Performance Tracking</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-2 flex-wrap">
-                                    {[
-                                        { key: 'horses', icon: <Target size={16} />, label: 'Chevaux' },
-                                        { key: 'dashboard', icon: <BarChart3 size={16} />, label: 'Dashboard' },
-                                        { key: 'familyoffice', icon: <Briefcase size={16} />, label: 'Family Office' },
-                                    ].map(v => (
-                                        <button key={v.key} onClick={() => setActiveView(v.key)}
-                                            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 ${
-                                                activeView === v.key ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-300/50' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-                                            }`}>{v.icon}{v.label}</button>
-                                    ))}
+                                    {[{key:'horses',icon:<Target size={15}/>,label:'Chevaux'},{key:'dashboard',icon:<BarChart3 size={15}/>,label:'Dashboard'},{key:'familyoffice',icon:<Briefcase size={15}/>,label:'Family Office'}].map(v=>
+                                        <button key={v.key} onClick={()=>setActiveView(v.key)} className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${activeView===v.key?'bg-gradient-to-r from-green-400/20 to-cyan-400/20 text-green-400 border border-green-400/30 glow-accent':'text-gray-400 hover:text-gray-300 border border-white/5 hover:border-white/10'}`}>{v.icon}{v.label}</button>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* ═══ HORSES VIEW ═══ */}
+                        {/* ═══ HORSES ═══ */}
                         {activeView === 'horses' && (
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                {/* Left: Horse list */}
-                                <div className="glass rounded-2xl shadow-lg shadow-indigo-100/30 p-6 border border-white/60">
-                                    <h2 className="text-xl font-bold text-slate-800 mb-4">Mes Chevaux</h2>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                                {/* Left */}
+                                <div className="card rounded-2xl p-5">
+                                    <h2 className="text-lg font-bold text-white mb-4">Mes Chevaux</h2>
                                     <div className="mb-4 space-y-2">
-                                        <input type="text" placeholder="Nom du cheval" value={horseName} onChange={e => setHorseName(e.target.value)} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none bg-white text-sm" />
+                                        <input type="text" placeholder="Nom du cheval" value={horseName} onChange={e=>setHorseName(e.target.value)} className="input-dark w-full px-3 py-2.5 rounded-lg text-sm"/>
                                         <div>
-                                            <label className="text-xs font-medium text-slate-500 mb-1 block">Date d'achat</label>
+                                            <label className="text-xs text-gray-500 mb-1 block">Date d'achat</label>
                                             <div className="flex gap-2">
-                                                <select value={purchaseDate.split('-')[2]||'01'} onChange={e=>{const p=purchaseDate.split('-');setPurchaseDate(`${p[0]}-${p[1]}-${e.target.value}`);}} className="flex-1 px-2 py-2.5 border border-slate-200 rounded-xl bg-white text-sm text-center">
-                                                    {Array.from({length:31},(_,i)=>i+1).map(d=><option key={d} value={String(d).padStart(2,'0')}>{d}</option>)}
-                                                </select>
-                                                <select value={purchaseDate.split('-')[1]||'01'} onChange={e=>{const p=purchaseDate.split('-');setPurchaseDate(`${p[0]}-${e.target.value}-${p[2]}`);}} className="flex-[2] px-2 py-2.5 border border-slate-200 rounded-xl bg-white text-sm text-center">
-                                                    {['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'].map((m,i)=><option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}
-                                                </select>
-                                                <select value={purchaseDate.split('-')[0]||'2025'} onChange={e=>{const p=purchaseDate.split('-');setPurchaseDate(`${e.target.value}-${p[1]}-${p[2]}`);}} className="flex-[1.5] px-2 py-2.5 border border-slate-200 rounded-xl bg-white text-sm text-center">
-                                                    {Array.from({length:20},(_,i)=>2015+i).map(y=><option key={y} value={y}>{y}</option>)}
-                                                </select>
+                                                <select value={purchaseDate.split('-')[2]||'01'} onChange={e=>{const p=purchaseDate.split('-');setPurchaseDate(`${p[0]}-${p[1]}-${e.target.value}`);}} className="input-dark flex-1 px-2 py-2 rounded-lg text-sm text-center">{Array.from({length:31},(_,i)=>i+1).map(d=><option key={d} value={String(d).padStart(2,'0')}>{d}</option>)}</select>
+                                                <select value={purchaseDate.split('-')[1]||'01'} onChange={e=>{const p=purchaseDate.split('-');setPurchaseDate(`${p[0]}-${e.target.value}-${p[2]}`);}} className="input-dark flex-[2] px-2 py-2 rounded-lg text-sm text-center">{['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'].map((m,i)=><option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}</select>
+                                                <select value={purchaseDate.split('-')[0]||'2025'} onChange={e=>{const p=purchaseDate.split('-');setPurchaseDate(`${e.target.value}-${p[1]}-${p[2]}`);}} className="input-dark flex-[1.5] px-2 py-2 rounded-lg text-sm text-center">{Array.from({length:20},(_,i)=>2015+i).map(y=><option key={y} value={y}>{y}</option>)}</select>
                                             </div>
                                         </div>
-                                        <button onClick={addHorse} className="w-full bg-indigo-600 text-white py-2.5 rounded-xl hover:bg-indigo-700 transition font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-200/50"><Plus size={18} />Ajouter</button>
+                                        <button onClick={addHorse} className="w-full bg-gradient-to-r from-green-500 to-cyan-500 text-black py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition"><Plus size={16}/>Ajouter</button>
                                     </div>
-                                    <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+                                    <div className="space-y-2 max-h-[58vh] overflow-y-auto pr-1">
                                         {horses.map(horse => (
-                                            <div key={horse.id} className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedHorse?.id === horse.id ? 'border-indigo-500 bg-indigo-50/80 shadow-md' : 'border-slate-100 hover:border-indigo-200 bg-white'}`} onClick={() => setSelectedHorseId(horse.id)}>
+                                            <div key={horse.id} className={`p-3.5 rounded-xl cursor-pointer transition-all ${selectedHorse?.id===horse.id?'card-inner border-green-500/30 glow-accent':'card-inner hover:border-white/10'}`} onClick={()=>setSelectedHorseId(horse.id)}>
                                                 <div className="flex justify-between items-start">
-                                                    <div className="flex-1 space-y-1.5">
-                                                        <div className="flex items-center gap-2"><h3 className="font-bold text-slate-800 text-sm">{horse.name}</h3><StatusBadge horse={horse} /></div>
-                                                        <EditableDate horse={horse} field="purchaseDate" label="Achat" /><br/>
-                                                        <EditableDate horse={horse} field="expectedSaleDate" label="Vente prév." /><br/>
-                                                        <EditableDate horse={horse} field="actualSaleDate" label="Vente eff." /><br/>
-                                                        <EditablePrice horse={horse} />
-                                                        <div className="flex items-center gap-3 mt-2">
-                                                            <span className="text-sm font-bold text-indigo-600">{fmt(getTotalExpenses(horse))} €</span>
-                                                            <span className="text-xs text-slate-400 flex items-center gap-1"><Clock size={10}/>{getHoldingPeriodText(horse)}</span>
+                                                    <div className="flex-1 space-y-1">
+                                                        <div className="flex items-center gap-2"><h3 className="font-semibold text-white text-sm">{horse.name}</h3><StatusBadge horse={horse}/></div>
+                                                        <EditableDate horse={horse} field="purchaseDate" label="Achat"/><br/>
+                                                        <EditableDate horse={horse} field="expectedSaleDate" label="Prév."/><br/>
+                                                        <EditableDate horse={horse} field="actualSaleDate" label="Eff."/><br/>
+                                                        <EditablePrice horse={horse}/>
+                                                        <div className="flex items-center gap-3 mt-1.5">
+                                                            <span className="text-sm font-bold text-green-400">{fmt(getTotalExpenses(horse))} €</span>
+                                                            <span className="text-xs text-gray-500 flex items-center gap-1"><Clock size={10}/>{getHoldingPeriodText(horse)}</span>
                                                         </div>
                                                     </div>
-                                                    <button onClick={e=>{e.stopPropagation();deleteHorse(horse.id);}} className="text-slate-300 hover:text-red-500 transition p-1"><Trash2 size={16}/></button>
+                                                    <button onClick={e=>{e.stopPropagation();deleteHorse(horse.id);}} className="text-gray-600 hover:text-red-400 transition p-1"><Trash2 size={14}/></button>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Middle: Expenses & Analytics */}
-                                <div className="glass rounded-2xl shadow-lg shadow-indigo-100/30 p-6 border border-white/60">
+                                {/* Middle */}
+                                <div className="card rounded-2xl p-5">
                                     <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-xl font-bold text-slate-800">{selectedHorse ? selectedHorse.name : 'Sélectionnez un cheval'}</h2>
-                                        {selectedHorse && <button onClick={() => setShowAnalytics(!showAnalytics)} className={`p-2 rounded-lg transition ${showAnalytics ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}><PieChart size={18}/></button>}
+                                        <h2 className="text-lg font-bold text-white">{selectedHorse ? selectedHorse.name : 'Sélectionnez un cheval'}</h2>
+                                        {selectedHorse && <button onClick={()=>setShowAnalytics(!showAnalytics)} className={`p-2 rounded-lg transition ${showAnalytics?'bg-green-400/20 text-green-400':'text-gray-500 hover:text-gray-300 bg-white/5'}`}><PieChart size={16}/></button>}
                                     </div>
                                     {selectedHorse && !showAnalytics && (
                                         <>
                                             <div className="mb-4 space-y-2">
                                                 <div className="flex gap-2">
-                                                    <input type="text" placeholder="Catégorie" value={expenseName} onChange={e=>setExpenseName(e.target.value)} className="flex-1 px-3 py-2 border border-slate-200 rounded-xl bg-white text-sm"/>
-                                                    <input type="number" placeholder="€" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} className="w-24 px-3 py-2 border border-slate-200 rounded-xl bg-white text-sm"/>
+                                                    <input type="text" placeholder="Catégorie" value={expenseName} onChange={e=>setExpenseName(e.target.value)} className="input-dark flex-1 px-3 py-2 rounded-lg text-sm"/>
+                                                    <input type="number" placeholder="€" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} className="input-dark w-24 px-3 py-2 rounded-lg text-sm"/>
                                                 </div>
-                                                <input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-sm"/>
-                                                <button onClick={addExpense} className="w-full bg-emerald-600 text-white py-2 rounded-xl hover:bg-emerald-700 transition font-semibold text-sm flex items-center justify-center gap-2"><Plus size={16}/>Ajouter une dépense</button>
+                                                <input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)} className="input-dark w-full px-3 py-2 rounded-lg text-sm"/>
+                                                <button onClick={addExpense} className="w-full bg-green-500/20 text-green-400 border border-green-500/30 py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 hover:bg-green-500/30 transition"><Plus size={14}/>Ajouter une dépense</button>
                                             </div>
-                                            <div className="space-y-1.5 max-h-80 overflow-y-auto pr-1">
-                                                {selectedHorse.expenses.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(expense => (
-                                                    <div key={expense.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
-                                                        <div><p className="font-medium text-slate-700 text-sm">{expense.name}</p><p className="text-xs text-slate-400">{formatDateFR(expense.date)}</p></div>
-                                                        <div className="flex items-center gap-2"><span className="text-sm font-semibold text-slate-700">{fmt(expense.amount)} €</span><button onClick={()=>deleteExpense(expense.id)} className="text-slate-300 hover:text-red-500 transition"><Trash2 size={14}/></button></div>
+                                            <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
+                                                {selectedHorse.expenses.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(exp=>(
+                                                    <div key={exp.id} className="flex justify-between items-center p-3 card-inner rounded-lg">
+                                                        <div><p className="font-medium text-gray-200 text-sm">{exp.name}</p><p className="text-xs text-gray-500">{formatDateFR(exp.date)}</p></div>
+                                                        <div className="flex items-center gap-2"><span className="text-sm font-semibold text-gray-300">{fmt(exp.amount)} €</span><button onClick={()=>deleteExpense(exp.id)} className="text-gray-600 hover:text-red-400 transition"><Trash2 size={13}/></button></div>
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div className="mt-4 pt-4 border-t-2 border-slate-100 flex justify-between items-center text-lg font-bold">
-                                                <span className="text-slate-700">Total</span><span className="text-indigo-600">{fmt(getTotalExpenses(selectedHorse))} €</span>
-                                            </div>
+                                            <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-lg font-bold"><span className="text-gray-400">Total</span><span className="gradient-text">{fmt(getTotalExpenses(selectedHorse))} €</span></div>
                                         </>
                                     )}
                                     {selectedHorse && showAnalytics && (
                                         <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
-                                            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-5 rounded-xl">
-                                                <h3 className="font-bold text-slate-700 mb-3 text-sm flex items-center gap-2"><TrendingUp size={16}/>Évolution mensuelle</h3>
+                                            <div className="card-inner rounded-xl p-4">
+                                                <h3 className="font-bold text-gray-300 mb-3 text-sm flex items-center gap-2"><TrendingUp size={14} className="text-green-400"/>Évolution mensuelle</h3>
                                                 {getMonthlyExpenses(selectedHorse).length > 0 ? (
                                                     <>
-                                                        <div className="bg-white p-3 rounded-lg mb-3">
+                                                        <div className="p-3 rounded-lg bg-black/30">
                                                             <svg viewBox="0 0 400 180" className="w-full h-40">
-                                                                {[0,1,2,3].map(i=><line key={i} x1="0" y1={160-i*40} x2="400" y2={160-i*40} stroke="#E5E7EB" strokeWidth="0.5"/>)}
-                                                                {(()=>{const data=getMonthlyExpenses(selectedHorse);const max=Math.max(...data.map(m=>m.amount));return<><defs><linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#4338ca"/><stop offset="100%" stopColor="#06b6d4"/></linearGradient></defs><polyline points={data.map((m,i)=>{const x=(i/Math.max(data.length-1,1))*380+10;const y=160-(m.amount/max)*140;return`${x},${y}`;}).join(' ')} fill="none" stroke="url(#lineGrad)" strokeWidth="2.5" strokeLinecap="round"/>{data.map((m,i)=>{const x=(i/Math.max(data.length-1,1))*380+10;const y=160-(m.amount/max)*140;return<g key={i}><circle cx={x} cy={y} r="3.5" fill="#4338ca"/><text x={x} y="175" textAnchor="middle" fontSize="8" fill="#94a3b8">{formatMonthLabel(m.month)}</text></g>})}</>;})()}
+                                                                {[0,1,2,3].map(i=><line key={i} x1="0" y1={160-i*40} x2="400" y2={160-i*40} stroke="rgba(255,255,255,0.04)" strokeWidth="0.5"/>)}
+                                                                {(()=>{const data=getMonthlyExpenses(selectedHorse);const max=Math.max(...data.map(m=>m.amount));return<><defs><linearGradient id="lgDark" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#00e5a0"/><stop offset="100%" stopColor="#00b4d8"/></linearGradient></defs><polyline points={data.map((m,i)=>{const x=(i/Math.max(data.length-1,1))*380+10;const y=160-(m.amount/max)*140;return`${x},${y}`;}).join(' ')} fill="none" stroke="url(#lgDark)" strokeWidth="2.5" strokeLinecap="round"/>{data.map((m,i)=>{const x=(i/Math.max(data.length-1,1))*380+10;const y=160-(m.amount/max)*140;return<g key={i}><circle cx={x} cy={y} r="3" fill="#00e5a0"/><text x={x} y="175" textAnchor="middle" fontSize="8" fill="#4a5568">{formatMonthLabel(m.month)}</text></g>})}</>;})()}
                                                             </svg>
                                                         </div>
-                                                        <div className="grid grid-cols-3 gap-2">
-                                                            {[{l:'Moy/mois',v:getMonthlyAverage(selectedHorse)},{l:'Mois max',v:Math.max(...getMonthlyExpenses(selectedHorse).map(m=>m.amount))},{l:'Proj. annuelle',v:getMonthlyAverage(selectedHorse)*12}].map((s,i)=>
-                                                                <div key={i} className="bg-white p-2.5 rounded-lg"><p className="text-xs text-slate-500">{s.l}</p><p className="text-base font-bold text-indigo-600">{fmt(s.v)} €</p></div>
+                                                        <div className="grid grid-cols-3 gap-2 mt-3">
+                                                            {[{l:'Moy/mois',v:getMonthlyAverage(selectedHorse)},{l:'Max',v:Math.max(...getMonthlyExpenses(selectedHorse).map(m=>m.amount))},{l:'Proj. an',v:getMonthlyAverage(selectedHorse)*12}].map((s,i)=>
+                                                                <div key={i} className="card-inner p-2.5 rounded-lg"><p className="text-xs text-gray-500">{s.l}</p><p className="text-sm font-bold text-green-400">{fmt(s.v)} €</p></div>
                                                             )}
                                                         </div>
                                                     </>
-                                                ) : <p className="text-slate-400 text-center py-6 text-sm">Pas encore de données</p>}
+                                                ) : <p className="text-gray-600 text-center py-6 text-sm">Pas encore de données</p>}
                                             </div>
-                                            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-xl">
-                                                <h3 className="font-bold text-slate-700 mb-3 text-sm">Répartition</h3>
-                                                <div className="space-y-2">
-                                                    {getCategoryBreakdown(selectedHorse).map((cat,i)=>{const pct=(cat.amount/getTotalExpenses(selectedHorse))*100;return(
-                                                        <div key={cat.name}><div className="flex justify-between text-xs mb-0.5"><span className="font-medium text-slate-600">{cat.name}</span><span className="text-slate-500">{fmt(cat.amount)} € ({pct.toFixed(0)}%)</span></div><div className="w-full bg-slate-200 rounded-full h-2"><div className="h-2 rounded-full transition-all" style={{width:`${pct}%`,backgroundColor:getColorForIndex(i)}}/></div></div>
-                                                    );})}
-                                                </div>
+                                            <div className="card-inner rounded-xl p-4">
+                                                <h3 className="font-bold text-gray-300 mb-3 text-sm">Répartition</h3>
+                                                <div className="space-y-2">{getCategoryBreakdown(selectedHorse).map((cat,i)=>{const pct=(cat.amount/getTotalExpenses(selectedHorse))*100;return(
+                                                    <div key={cat.name}><div className="flex justify-between text-xs mb-0.5"><span className="text-gray-400">{cat.name}</span><span className="text-gray-500">{fmt(cat.amount)} € ({pct.toFixed(0)}%)</span></div><div className="w-full bg-white/5 rounded-full h-1.5"><div className="h-1.5 rounded-full transition-all" style={{width:`${pct}%`,backgroundColor:getColorForIndex(i)}}/></div></div>
+                                                );})}</div>
                                             </div>
                                         </div>
                                     )}
                                 </div>
 
-                                {/* Right: ROI Calculator */}
-                                <div className="glass rounded-2xl shadow-lg shadow-indigo-100/30 p-6 border border-white/60">
-                                    <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2"><Calculator size={22}/>ROI Calculator</h2>
+                                {/* Right: ROI */}
+                                <div className="card rounded-2xl p-5">
+                                    <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Calculator size={20} className="text-cyan-400"/>ROI Calculator</h2>
                                     {selectedHorse && (
                                         <>
                                             <div className="space-y-3 mb-5">
-                                                <div><label className="text-xs font-medium text-slate-500 mb-1 block">Commission (%)</label><input type="number" value={commission} onChange={e=>setCommission(parseFloat(e.target.value)||0)} className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-sm"/></div>
-                                                <div><label className="text-xs font-medium text-slate-500 mb-1 block">Prix de vente simulé (€)</label><input type="number" placeholder="Ex: 18000" value={customPrice} onChange={e=>setCustomPrice(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-sm"/></div>
+                                                <div><label className="text-xs text-gray-500 mb-1 block">Commission (%)</label><input type="number" value={commission} onChange={e=>setCommission(parseFloat(e.target.value)||0)} className="input-dark w-full px-3 py-2 rounded-lg text-sm"/></div>
+                                                <div><label className="text-xs text-gray-500 mb-1 block">Prix de vente simulé (€)</label><input type="number" placeholder="Ex: 18000" value={customPrice} onChange={e=>setCustomPrice(e.target.value)} className="input-dark w-full px-3 py-2 rounded-lg text-sm"/></div>
                                             </div>
-                                            <div className="bg-gradient-to-r from-indigo-50 to-violet-50 p-4 rounded-xl mb-5 border border-indigo-100">
-                                                <p className="text-xs text-slate-500 mb-1">Seuil de rentabilité</p>
-                                                <p className="text-2xl font-extrabold text-indigo-600 stat-value">{fmt(getBreakEvenPrice(getTotalExpenses(selectedHorse)))} €</p>
-                                            </div>
+                                            <div className="card-inner rounded-xl p-4 mb-5 glow-accent"><p className="text-xs text-gray-500 mb-1">Seuil de rentabilité</p><p className="text-2xl font-extrabold gradient-text stat-value">{fmt(getBreakEvenPrice(getTotalExpenses(selectedHorse)))} €</p></div>
                                             <div className="grid grid-cols-2 gap-2 mb-5">
-                                                <div className="metric-card bg-slate-50 p-3 rounded-xl border border-slate-100"><p className="text-xs text-slate-500 flex items-center gap-1"><Clock size={11}/>Holding</p><p className="text-lg font-bold text-slate-800 stat-value">{getHoldingPeriodText(selectedHorse)}</p><p className="text-xs text-slate-400">{getHoldingPeriodDays(selectedHorse)} jours</p></div>
-                                                <div className="metric-card bg-slate-50 p-3 rounded-xl border border-slate-100"><p className="text-xs text-slate-500 flex items-center gap-1"><Target size={11}/>Objectif</p><p className="text-lg font-bold text-slate-800 stat-value">{getExpectedHoldingText(selectedHorse)||'—'}</p>{(()=>{const d=getDaysUntilExpectedSale(selectedHorse);if(d===null)return null;return<p className={`text-xs ${d<0?'text-red-500':d<=30?'text-amber-500':'text-emerald-500'}`}>{d<0?`${Math.abs(d)}j de retard`:`${d}j restants`}</p>})()}</div>
+                                                <div className="card-inner rounded-xl p-3"><p className="text-xs text-gray-500 flex items-center gap-1"><Clock size={10}/>Holding</p><p className="text-lg font-bold text-white stat-value">{getHoldingPeriodText(selectedHorse)}</p><p className="text-xs text-gray-600">{getHoldingPeriodDays(selectedHorse)}j</p></div>
+                                                <div className="card-inner rounded-xl p-3"><p className="text-xs text-gray-500 flex items-center gap-1"><Target size={10}/>Objectif</p><p className="text-lg font-bold text-white stat-value">{getExpectedHoldingText(selectedHorse)||'—'}</p>{(()=>{const d=getDaysUntilExpectedSale(selectedHorse);if(d===null)return null;return<p className={`text-xs ${d<0?'text-red-400':d<=30?'text-amber-400':'text-green-400'}`}>{d<0?`${Math.abs(d)}j retard`:`${d}j`}</p>})()}</div>
                                             </div>
                                             {customPrice&&parseFloat(customPrice)>0&&(()=>{const p=parseFloat(customPrice),t=getTotalExpenses(selectedHorse),roi=calculateROI(p,t),rp=calculateROIPercentage(p,t),moic=calculateMOIC(p,t),irr=calculateIRR(selectedHorse,p),ok=roi>=0;return(
-                                                <div className={`p-4 rounded-xl mb-5 border-2 ${ok?'bg-emerald-50 border-emerald-200':'bg-red-50 border-red-200'}`}>
-                                                    <div className="flex justify-between items-center mb-2"><span className="font-bold text-slate-800">{fmt(p)} €</span><span className="text-xl">{ok?'✅':'❌'}</span></div>
-                                                    <p className="text-xs text-slate-500">Commission: {fmt(p*commission/100)} € → Net: {fmt(p*(1-commission/100))} €</p>
-                                                    <p className={`text-lg font-bold mt-1 ${ok?'text-emerald-600':'text-red-600'}`}>{ok?'+':''}{fmt(roi)} € ({fmtPct(rp)})</p>
-                                                    <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-200">
-                                                        <div className="bg-white p-2 rounded-lg text-center"><p className="text-xs text-slate-400">MOIC</p><p className="font-bold text-indigo-600 stat-value">{moic.toFixed(2)}x</p></div>
-                                                        <div className="bg-white p-2 rounded-lg text-center"><p className="text-xs text-slate-400">IRR</p><p className="font-bold text-indigo-600 stat-value">{irr!==null?`${irr.toFixed(1)}%`:'—'}</p></div>
-                                                        <div className="bg-white p-2 rounded-lg text-center"><p className="text-xs text-slate-400">Hold</p><p className="font-bold text-indigo-600 stat-value">{getHoldingPeriodText(selectedHorse)}</p></div>
+                                                <div className={`p-4 rounded-xl mb-5 border ${ok?'border-green-500/20 bg-green-500/5':'border-red-500/20 bg-red-500/5'}`}>
+                                                    <div className="flex justify-between items-center mb-2"><span className="font-bold text-white">{fmt(p)} €</span><span className="text-lg">{ok?'✅':'❌'}</span></div>
+                                                    <p className="text-xs text-gray-500">Com: {fmt(p*commission/100)} € → Net: {fmt(p*(1-commission/100))} €</p>
+                                                    <p className={`text-lg font-bold mt-1 ${ok?'text-green-400':'text-red-400'}`}>{ok?'+':''}{fmt(roi)} € ({fmtPct(rp)})</p>
+                                                    <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/5">
+                                                        <div className="text-center"><p className="text-xs text-gray-500">MOIC</p><p className="font-bold text-cyan-400 stat-value">{moic.toFixed(2)}x</p></div>
+                                                        <div className="text-center"><p className="text-xs text-gray-500">IRR</p><p className="font-bold text-cyan-400 stat-value">{irr!==null?`${irr.toFixed(1)}%`:'—'}</p></div>
+                                                        <div className="text-center"><p className="text-xs text-gray-500">Hold</p><p className="font-bold text-cyan-400 stat-value">{getHoldingPeriodText(selectedHorse)}</p></div>
                                                     </div>
                                                 </div>
                                             );})()}
-                                            <h3 className="font-bold text-slate-700 text-sm mb-2">Scénarios</h3>
-                                            <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+                                            <h3 className="font-bold text-gray-400 text-sm mb-2">Scénarios</h3>
+                                            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                                                 {scenariosPrices.map(price=>{const t=getTotalExpenses(selectedHorse),roi=calculateROI(price,t),rp=calculateROIPercentage(price,t),moic=calculateMOIC(price,t),irr=calculateIRR(selectedHorse,price),ok=roi>=0;return(
-                                                    <div key={price} className={`p-2.5 rounded-lg text-sm ${ok?'bg-emerald-50 border border-emerald-100':'bg-red-50 border border-red-100'}`}>
-                                                        <div className="flex justify-between items-center"><span className="font-semibold text-slate-700">{fmt(price)} €</span><span className="text-xs">{ok?'✅':'❌'}</span></div>
-                                                        <p className="text-xs text-slate-500 mt-0.5">ROI: {fmtPct(rp)} · MOIC: {moic.toFixed(2)}x{irr!==null?` · IRR: ${irr.toFixed(1)}%`:''}</p>
+                                                    <div key={price} className={`p-2.5 rounded-lg text-sm border ${ok?'border-green-500/10 bg-green-500/5':'border-red-500/10 bg-red-500/5'}`}>
+                                                        <div className="flex justify-between items-center"><span className="font-semibold text-gray-300">{fmt(price)} €</span><span className="text-xs">{ok?'✅':'❌'}</span></div>
+                                                        <p className="text-xs text-gray-500 mt-0.5">ROI: {fmtPct(rp)} · MOIC: {moic.toFixed(2)}x{irr!==null?` · IRR: ${irr.toFixed(1)}%`:''}</p>
                                                     </div>
                                                 );})}
                                             </div>
@@ -548,279 +371,127 @@
                             </div>
                         )}
 
-                        {/* ═══ DASHBOARD VIEW ═══ */}
+                        {/* ═══ DASHBOARD ═══ */}
                         {activeView === 'dashboard' && (
-                            <div className="space-y-6">
+                            <div className="space-y-5">
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                                    {[
-                                        {l:'Capital investi',v:`${fmt(getGlobalStats().totalInvested)} €`,g:'from-indigo-500 to-indigo-600'},
-                                        {l:'Chevaux actifs',v:getGlobalStats().activeCount,g:'from-blue-500 to-blue-600'},
-                                        {l:'Vendus',v:getGlobalStats().soldCount,g:'from-emerald-500 to-emerald-600'},
-                                        {l:'Revenus nets',v:`${fmt(getGlobalStats().totalRevenue)} €`,g:'from-violet-500 to-violet-600'},
-                                        {l:'Capital Turnover',v:`${getCapitalTurnover().toFixed(2)}x`,g:'from-amber-500 to-orange-500'},
-                                        {l:'P&L Réalisé',v:`${getGlobalStats().totalPL>=0?'+':''}${fmt(getGlobalStats().totalPL)} €`,g:getGlobalStats().totalPL>=0?'from-emerald-500 to-teal-500':'from-red-500 to-red-600'},
-                                    ].map((k,i)=><div key={i} className={`bg-gradient-to-br ${k.g} rounded-xl p-4 text-white shadow-lg`}><p className="text-white/70 text-xs mb-1">{k.l}</p><p className="text-2xl font-extrabold stat-value">{k.v}</p></div>)}
+                                    {[{l:'Capital investi',v:`${fmt(getGlobalStats().totalInvested)} €`,c:'text-green-400'},{l:'Actifs',v:getGlobalStats().activeCount,c:'text-cyan-400'},{l:'Vendus',v:getGlobalStats().soldCount,c:'text-purple-400'},{l:'Revenus nets',v:`${fmt(getGlobalStats().totalRevenue)} €`,c:'text-cyan-400'},{l:'Cap. Turnover',v:`${getCapitalTurnover().toFixed(2)}x`,c:'text-amber-400'},{l:'P&L Réalisé',v:`${getGlobalStats().totalPL>=0?'+':''}${fmt(getGlobalStats().totalPL)} €`,c:getGlobalStats().totalPL>=0?'text-green-400':'text-red-400'}].map((k,i)=>
+                                        <div key={i} className="card rounded-xl p-4"><p className="text-gray-500 text-xs mb-1">{k.l}</p><p className={`text-xl font-extrabold stat-value ${k.c}`}>{k.v}</p></div>
+                                    )}
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="glass rounded-2xl shadow-lg p-6 border border-white/60">
-                                        <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Zap size={20} className="text-amber-500"/>Velocity of Deals</h2>
-                                        {(()=>{const v=getVelocityOfDeals();if(!v)return<p className="text-slate-400 text-sm">Aucune vente enregistrée</p>;return(
-                                            <div className="space-y-4">
-                                                <div className="grid grid-cols-3 gap-3">
-                                                    <div className="metric-card bg-amber-50 p-4 rounded-xl border border-amber-100 text-center"><p className="text-xs text-slate-500 mb-1">Holding moy.</p><p className="text-xl font-extrabold text-amber-600 stat-value">{v.avgMonths.toFixed(1)}</p><p className="text-xs text-slate-400">mois</p></div>
-                                                    <div className="metric-card bg-orange-50 p-4 rounded-xl border border-orange-100 text-center"><p className="text-xs text-slate-500 mb-1">Deals/an</p><p className="text-xl font-extrabold text-orange-600 stat-value">{v.dealsPerYear.toFixed(1)}</p><p className="text-xs text-slate-400">estimé</p></div>
-                                                    <div className="metric-card bg-yellow-50 p-4 rounded-xl border border-yellow-100 text-center"><p className="text-xs text-slate-500 mb-1">Vendus</p><p className="text-xl font-extrabold text-yellow-600 stat-value">{v.count}</p><p className="text-xs text-slate-400">chevaux</p></div>
-                                                </div>
-                                            </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div className="card rounded-2xl p-5">
+                                        <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2"><Zap size={18} className="text-amber-400"/>Velocity</h2>
+                                        {(()=>{const v=getVelocityOfDeals();if(!v)return<p className="text-gray-600 text-sm">Aucune vente</p>;return(
+                                            <div className="grid grid-cols-3 gap-3">{[{l:'Hold moy.',v:`${v.avgMonths.toFixed(1)}m`,c:'text-amber-400'},{l:'Deals/an',v:v.dealsPerYear.toFixed(1),c:'text-orange-400'},{l:'Vendus',v:v.count,c:'text-yellow-400'}].map((s,i)=><div key={i} className="card-inner rounded-xl p-4 text-center"><p className="text-xs text-gray-500">{s.l}</p><p className={`text-xl font-extrabold stat-value ${s.c}`}>{s.v}</p></div>)}</div>
                                         );})()}
                                     </div>
-                                    <div className="glass rounded-2xl shadow-lg p-6 border border-white/60">
-                                        <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><TrendingUp size={20} className="text-indigo-500"/>Capital Turnover</h2>
-                                        <div className="flex items-center gap-4">
-                                            <Gauge value={getCapitalTurnover()} max={3} label="turnover" />
-                                            <div className="flex-1 space-y-2">
-                                                <p className="text-sm text-slate-600">Mesure combien de fois votre capital a été recyclé via les ventes.</p>
-                                                {getCapitalTurnover()>1&&<p className="text-xs text-emerald-600 font-medium flex items-center gap-1"><CheckCircle size={12}/>Capital récupéré</p>}
-                                            </div>
-                                        </div>
+                                    <div className="card rounded-2xl p-5">
+                                        <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2"><TrendingUp size={18} className="text-green-400"/>Capital Turnover</h2>
+                                        <div className="flex items-center gap-4"><Gauge value={getCapitalTurnover()} max={3} label="turnover" size={100}/><div className="flex-1"><p className="text-sm text-gray-400">Mesure le recyclage de votre capital.</p>{getCapitalTurnover()>1&&<p className="text-xs text-green-400 mt-1 flex items-center gap-1"><CheckCircle size={12}/>Capital récupéré</p>}</div></div>
                                     </div>
                                 </div>
-                                <div className="glass rounded-2xl shadow-lg p-6 border border-white/60 overflow-x-auto">
-                                    <h2 className="text-lg font-bold text-slate-800 mb-4">Détails par cheval</h2>
-                                    <table className="w-full text-sm">
-                                        <thead><tr className="border-b-2 border-slate-200">{['Cheval','Statut','Achat','Vente prév.','Vente eff.','Invest.','Seuil','Holding','Prix vente','P&L'].map(h=><th key={h} className="text-left py-2 px-3 font-semibold text-slate-500 text-xs whitespace-nowrap">{h}</th>)}</tr></thead>
-                                        <tbody>{horses.map(horse=>{const t=getTotalExpenses(horse),be=getBreakEvenPrice(t),sp=parseFloat(horse.actualSalePrice)||0,pl=horse.actualSaleDate&&sp?calculateROI(sp,t):null;return(
-                                            <tr key={horse.id} className="border-b border-slate-50 hover:bg-slate-50/50">
-                                                <td className="py-2.5 px-3 font-medium text-slate-800">{horse.name}</td>
-                                                <td className="py-2.5 px-3"><StatusBadge horse={horse}/></td>
-                                                <td className="py-2.5 px-3 text-slate-500 text-xs">{formatDateFR(horse.purchaseDate)}</td>
-                                                <td className="py-2.5 px-3 text-slate-500 text-xs">{formatDateFR(horse.expectedSaleDate)}</td>
-                                                <td className="py-2.5 px-3 text-slate-500 text-xs">{formatDateFR(horse.actualSaleDate)}</td>
-                                                <td className="py-2.5 px-3 text-slate-700 font-medium">{fmt(t)} €</td>
-                                                <td className="py-2.5 px-3 text-indigo-600 font-medium">{fmt(be)} €</td>
-                                                <td className="py-2.5 px-3 text-slate-600">{getHoldingPeriodText(horse)}</td>
-                                                <td className="py-2.5 px-3 text-slate-600">{sp?`${fmt(sp)} €`:'—'}</td>
-                                                <td className={`py-2.5 px-3 font-bold ${pl!==null?(pl>=0?'text-emerald-600':'text-red-500'):'text-slate-400'}`}>{pl!==null?`${pl>=0?'+':''}${fmt(pl)} €`:'—'}</td>
-                                            </tr>
-                                        );})}</tbody>
-                                    </table>
+                                <div className="card rounded-2xl p-5 overflow-x-auto">
+                                    <h2 className="text-base font-bold text-white mb-4">Détails</h2>
+                                    <table className="w-full text-sm"><thead><tr className="border-b border-white/5">{['Cheval','Statut','Achat','Prév.','Eff.','Invest.','Seuil','Hold','Vente','P&L'].map(h=><th key={h} className="text-left py-2 px-3 text-gray-500 text-xs font-medium whitespace-nowrap">{h}</th>)}</tr></thead>
+                                    <tbody>{horses.map(horse=>{const t=getTotalExpenses(horse),be=getBreakEvenPrice(t),sp=parseFloat(horse.actualSalePrice)||0,pl=horse.actualSaleDate&&sp?calculateROI(sp,t):null;return(
+                                        <tr key={horse.id} className="border-b border-white/3 hover:bg-white/2"><td className="py-2 px-3 text-gray-200 font-medium">{horse.name}</td><td className="py-2 px-3"><StatusBadge horse={horse}/></td><td className="py-2 px-3 text-gray-500 text-xs">{formatDateFR(horse.purchaseDate)}</td><td className="py-2 px-3 text-gray-500 text-xs">{formatDateFR(horse.expectedSaleDate)}</td><td className="py-2 px-3 text-gray-500 text-xs">{formatDateFR(horse.actualSaleDate)}</td><td className="py-2 px-3 text-gray-300">{fmt(t)} €</td><td className="py-2 px-3 text-cyan-400">{fmt(be)} €</td><td className="py-2 px-3 text-gray-400">{getHoldingPeriodText(horse)}</td><td className="py-2 px-3 text-gray-400">{sp?`${fmt(sp)} €`:'—'}</td><td className={`py-2 px-3 font-bold ${pl!==null?(pl>=0?'text-green-400':'text-red-400'):'text-gray-600'}`}>{pl!==null?`${pl>=0?'+':''}${fmt(pl)} €`:'—'}</td></tr>
+                                    );})}</tbody></table>
                                 </div>
                             </div>
                         )}
 
-                        {/* ═══ FAMILY OFFICE VIEW ═══ */}
-                        {activeView === 'familyoffice' && (()=>{
-                            const fo = getFOMetrics();
-                            return (
-                                <div className="space-y-6">
-                                    {/* Header */}
-                                    <div className="glass rounded-2xl shadow-lg p-6 border border-white/60">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="p-2.5 bg-slate-800 rounded-xl text-white"><Briefcase size={24}/></div>
-                                            <div>
-                                                <h2 className="text-2xl font-extrabold text-slate-800"><span className="brand-name">Horse</span><span className="brand-name text-indigo-600">Folio</span> — Family Office Report</h2>
-                                                <p className="text-slate-500 text-sm">Vue investisseur · Métriques Private Equity · {formatDateFR(new Date().toISOString().split('T')[0])}</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                        {/* ═══ FAMILY OFFICE ═══ */}
+                        {activeView === 'familyoffice' && (()=>{const fo = getFOMetrics(); return (
+                            <div className="space-y-6">
+                                <div className="card rounded-2xl p-5"><div className="flex items-center gap-3"><div className="p-2.5 rounded-xl bg-gradient-to-br from-green-400/20 to-cyan-400/20 border border-green-400/20"><Briefcase size={22} className="text-green-400"/></div><div><h2 className="text-xl font-bold text-white brand"><span>Equi</span><span className="gradient-text">Track</span> — Family Office Report</h2><p className="text-gray-500 text-xs">{formatDateFR(new Date().toISOString().split('T')[0])}</p></div></div></div>
 
-                                    {/* ── 1. PERFORMANCE DU PORTEFEUILLE ── */}
-                                    <div className="fo-section border-indigo-400">
-                                        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><TrendingUp size={20} className="text-indigo-500"/>Performance du portefeuille</h3>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                                            <div className="glass rounded-xl p-5 border border-white/60 text-center">
-                                                <Gauge value={fo.tvpi} max={3} label="TVPI" color1="#4338ca" color2="#7c3aed" />
-                                                <p className="text-xs text-slate-500 mt-2">Total Value to Paid-In</p>
-                                                <p className="text-xs text-slate-400">Réalisé + Non réalisé / Capital investi</p>
-                                            </div>
-                                            <div className="glass rounded-xl p-5 border border-white/60 text-center">
-                                                <Gauge value={fo.dpi} max={3} label="DPI" color1="#059669" color2="#10b981" />
-                                                <p className="text-xs text-slate-500 mt-2">Distributed to Paid-In</p>
-                                                <p className="text-xs text-slate-400">Cash retourné / Capital investi</p>
-                                            </div>
-                                            <div className="glass rounded-xl p-5 border border-white/60 text-center">
-                                                <Gauge value={fo.rvpi} max={3} label="RVPI" color1="#d97706" color2="#f59e0b" />
-                                                <p className="text-xs text-slate-500 mt-2">Residual Value to Paid-In</p>
-                                                <p className="text-xs text-slate-400">Valeur estimée restante / Capital investi</p>
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100"><p className="text-xs text-slate-500">Capital investi</p><p className="text-xl font-extrabold text-indigo-600 stat-value">{fmt(fo.totalPaidIn)} €</p></div>
-                                            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100"><p className="text-xs text-slate-500">Distribué (net)</p><p className="text-xl font-extrabold text-emerald-600 stat-value">{fmt(fo.totalDistributed)} €</p></div>
-                                            <div className="bg-amber-50 rounded-xl p-4 border border-amber-100"><p className="text-xs text-slate-500">Valeur résiduelle</p><p className="text-xl font-extrabold text-amber-600 stat-value">{fmt(fo.totalResidualValue)} €</p></div>
-                                        </div>
-                                        {/* Estimated values for active horses */}
-                                        {fo.activeCount > 0 && (
-                                            <div className="mt-4 bg-amber-50/50 rounded-xl p-4 border border-amber-100">
-                                                <p className="text-xs font-semibold text-amber-700 mb-3">Estimation de la valeur des chevaux actifs (pour calcul RVPI & TVPI)</p>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                    {horses.filter(h=>!h.actualSaleDate).map(h=>(
-                                                        <div key={h.id} className="flex items-center gap-2 bg-white rounded-lg p-2">
-                                                            <span className="text-sm font-medium text-slate-700 flex-1">{h.name}</span>
-                                                            <span className="text-xs text-slate-400">({fmt(getTotalExpenses(h))} € inv.)</span>
-                                                            <input type="number" placeholder="Val. estimée" value={foEstimatedValues[h.id]||''} onChange={e=>setFoEstimatedValues({...foEstimatedValues,[h.id]:e.target.value})}
-                                                                className="w-28 px-2 py-1 text-sm border border-amber-200 rounded-lg bg-amber-50 text-right"/>
-                                                            <span className="text-xs text-slate-400">€</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
+                                {/* Performance */}
+                                <div className="fo-section border-green-400/50">
+                                    <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2"><TrendingUp size={18} className="text-green-400"/>Performance du portefeuille</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                                        {[{v:fo.tvpi,l:'TVPI',c1:'#00e5a0',c2:'#a78bfa',sub:'Total Value / Paid-In'},{v:fo.dpi,l:'DPI',c1:'#00e5a0',c2:'#10b981',sub:'Distributed / Paid-In'},{v:fo.rvpi,l:'RVPI',c1:'#f59e0b',c2:'#f97316',sub:'Residual / Paid-In'}].map((g,i)=>
+                                            <div key={i} className="card rounded-xl p-5 text-center"><Gauge value={g.v} max={3} label={g.l} c1={g.c1} c2={g.c2}/><p className="text-xs text-gray-500 mt-2">{g.sub}</p></div>
                                         )}
                                     </div>
-
-                                    {/* ── 2. GESTION DU RISQUE ── */}
-                                    <div className="fo-section border-red-400">
-                                        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Shield size={20} className="text-red-500"/>Gestion du risque</h3>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                                            <div className="metric-card bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-                                                <p className="text-xs text-slate-500">Taux de réussite</p>
-                                                <p className="text-2xl font-extrabold stat-value text-emerald-600">{fo.winRate.toFixed(0)}%</p>
-                                                <p className="text-xs text-slate-400">{fo.wins}W / {fo.losses}L sur {fo.soldCount} ventes</p>
-                                            </div>
-                                            <div className="metric-card bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-                                                <p className="text-xs text-slate-500">Gain/Perte ratio</p>
-                                                <p className="text-2xl font-extrabold stat-value text-indigo-600">{fo.gainLossRatio === Infinity ? '∞' : fo.gainLossRatio.toFixed(2)}x</p>
-                                                <p className="text-xs text-slate-400">Gain moy. / Perte moy.</p>
-                                            </div>
-                                            <div className="metric-card bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-                                                <p className="text-xs text-slate-500">Meilleur deal</p>
-                                                <p className="text-xl font-extrabold stat-value text-emerald-600">{fo.bestDeal >= 0 ? '+' : ''}{fmt(fo.bestDeal)} €</p>
-                                            </div>
-                                            <div className="metric-card bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-                                                <p className="text-xs text-slate-500">Pire deal</p>
-                                                <p className="text-xl font-extrabold stat-value text-red-500">{fo.worstDeal >= 0 ? '+' : ''}{fmt(fo.worstDeal)} €</p>
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-center"><p className="text-xs text-slate-500">Gain moyen</p><p className="font-bold text-emerald-600">{fmt(fo.avgGain)} €</p></div>
-                                            <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-center"><p className="text-xs text-slate-500">Perte moyenne</p><p className="font-bold text-red-500">-{fmt(fo.avgLoss)} €</p></div>
-                                            <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-center"><p className="text-xs text-slate-500">P&L médian</p><p className={`font-bold ${fo.medianDeal>=0?'text-emerald-600':'text-red-500'}`}>{fo.medianDeal>=0?'+':''}{fmt(fo.medianDeal)} €</p></div>
-                                        </div>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {[{l:'Capital investi',v:`${fmt(fo.totalPaidIn)} €`,c:'text-green-400'},{l:'Distribué (net)',v:`${fmt(fo.totalDistributed)} €`,c:'text-cyan-400'},{l:'Valeur résiduelle',v:`${fmt(fo.totalResidualValue)} €`,c:'text-amber-400'}].map((m,i)=>
+                                            <div key={i} className="card-inner rounded-xl p-3"><p className="text-xs text-gray-500">{m.l}</p><p className={`text-lg font-extrabold stat-value ${m.c}`}>{m.v}</p></div>
+                                        )}
                                     </div>
-
-                                    {/* ── 3. EFFICACITÉ OPÉRATIONNELLE ── */}
-                                    <div className="fo-section border-cyan-400">
-                                        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Activity size={20} className="text-cyan-500"/>Efficacité opérationnelle</h3>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                                            <div className="metric-card bg-cyan-50 rounded-xl p-4 border border-cyan-100"><p className="text-xs text-slate-500">Coût mensuel moy./cheval</p><p className="text-xl font-extrabold text-cyan-600 stat-value">{fmt(fo.avgMonthlyCost)} €</p></div>
-                                            <div className="metric-card bg-violet-50 rounded-xl p-4 border border-violet-100"><p className="text-xs text-slate-500">Marge nette</p><p className="text-xl font-extrabold text-violet-600 stat-value">{fo.netMargin.toFixed(1)}%</p><p className="text-xs text-slate-400">Après commissions & frais</p></div>
-                                            <div className="metric-card bg-slate-50 rounded-xl p-4 border border-slate-200"><p className="text-xs text-slate-500">Total commissions payées</p><p className="text-xl font-extrabold text-slate-700 stat-value">{fmt(fo.totalCommissions)} €</p></div>
-                                            <div className="metric-card bg-emerald-50 rounded-xl p-4 border border-emerald-100"><p className="text-xs text-slate-500">Temps moy. au break-even</p><p className="text-xl font-extrabold text-emerald-600 stat-value">{fo.avgBreakEvenMonths.toFixed(1)} mois</p><p className="text-xs text-slate-400">Deals profitables</p></div>
+                                    {fo.activeCount > 0 && (
+                                        <div className="mt-4 card-inner rounded-xl p-4 border-amber-500/10">
+                                            <p className="text-xs font-semibold text-amber-400 mb-3">Estimation valeur chevaux actifs (RVPI)</p>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{horses.filter(h=>!h.actualSaleDate).map(h=>(
+                                                <div key={h.id} className="flex items-center gap-2 bg-black/20 rounded-lg p-2"><span className="text-sm text-gray-300 flex-1">{h.name}</span><span className="text-xs text-gray-600">({fmt(getTotalExpenses(h))} €)</span><input type="number" placeholder="Estimée" value={foEstimatedValues[h.id]||''} onChange={e=>setFoEstimatedValues({...foEstimatedValues,[h.id]:e.target.value})} className="input-dark w-24 px-2 py-1 text-xs rounded text-right"/><span className="text-xs text-gray-600">€</span></div>
+                                            ))}</div>
                                         </div>
+                                    )}
+                                </div>
+
+                                {/* Risk */}
+                                <div className="fo-section border-red-400/50">
+                                    <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2"><Shield size={18} className="text-red-400"/>Gestion du risque</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                                        {[{l:'Taux de réussite',v:`${fo.winRate.toFixed(0)}%`,s:`${fo.wins}W / ${fo.losses}L`,c:'text-green-400'},{l:'Gain/Perte',v:fo.gainLossRatio===Infinity?'∞':`${fo.gainLossRatio.toFixed(2)}x`,s:'Ratio moyen',c:'text-cyan-400'},{l:'Meilleur deal',v:`${fo.bestDeal>=0?'+':''}${fmt(fo.bestDeal)} €`,c:'text-green-400'},{l:'Pire deal',v:`${fo.worstDeal>=0?'+':''}${fmt(fo.worstDeal)} €`,c:'text-red-400'}].map((m,i)=>
+                                            <div key={i} className="card rounded-xl p-4"><p className="text-xs text-gray-500">{m.l}</p><p className={`text-xl font-extrabold stat-value ${m.c}`}>{m.v}</p>{m.s&&<p className="text-xs text-gray-600 mt-1">{m.s}</p>}</div>
+                                        )}
                                     </div>
+                                    <div className="grid grid-cols-3 gap-3">{[{l:'Gain moyen',v:`+${fmt(fo.avgGain)} €`,c:'text-green-400'},{l:'Perte moyenne',v:`-${fmt(fo.avgLoss)} €`,c:'text-red-400'},{l:'P&L médian',v:`${fo.medianDeal>=0?'+':''}${fmt(fo.medianDeal)} €`,c:fo.medianDeal>=0?'text-green-400':'text-red-400'}].map((m,i)=><div key={i} className="card-inner rounded-xl p-3 text-center"><p className="text-xs text-gray-500">{m.l}</p><p className={`font-bold ${m.c}`}>{m.v}</p></div>)}</div>
+                                </div>
 
-                                    {/* ── 4. TENDANCE & IRR PAR DEAL ── */}
-                                    <div className="fo-section border-purple-400">
-                                        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><TrendingUp size={20} className="text-purple-500"/>Prévisibilité & tendance</h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {/* IRR by deal */}
-                                            <div className="glass rounded-xl p-5 border border-white/60">
-                                                <h4 className="text-sm font-bold text-slate-700 mb-3">IRR par deal (chronologique)</h4>
-                                                {fo.irrByDeal.length > 0 ? (
-                                                    <div className="space-y-2">
-                                                        {fo.irrByDeal.map((d, i) => {
-                                                            const maxIrr = Math.max(...fo.irrByDeal.map(x => Math.abs(x.irr)), 1);
-                                                            const pct = Math.abs(d.irr) / maxIrr * 100;
-                                                            return (
-                                                                <div key={i}>
-                                                                    <div className="flex justify-between text-xs mb-0.5">
-                                                                        <span className="font-medium text-slate-600">#{d.index} {d.name}</span>
-                                                                        <span className={d.irr >= 0 ? 'text-emerald-600' : 'text-red-500'}>{fmtPct(d.irr)} /an</span>
-                                                                    </div>
-                                                                    <div className="w-full bg-slate-100 rounded-full h-2.5">
-                                                                        <div className={`h-2.5 rounded-full ${d.irr >= 0 ? 'bg-emerald-400' : 'bg-red-400'}`} style={{ width: `${pct}%` }} />
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                ) : <p className="text-slate-400 text-sm">Pas encore de ventes</p>}
-                                            </div>
+                                {/* Operational */}
+                                <div className="fo-section border-cyan-400/50">
+                                    <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2"><Activity size={18} className="text-cyan-400"/>Efficacité opérationnelle</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {[{l:'Coût moy./cheval/mois',v:`${fmt(fo.avgMonthlyCost)} €`,c:'text-cyan-400'},{l:'Marge nette',v:`${fo.netMargin.toFixed(1)}%`,c:'text-purple-400'},{l:'Commissions totales',v:`${fmt(fo.totalCommissions)} €`,c:'text-gray-300'},{l:'Temps au break-even',v:`${fo.avgBreakEvenMonths.toFixed(1)} mois`,c:'text-green-400'}].map((m,i)=>
+                                            <div key={i} className="card rounded-xl p-4"><p className="text-xs text-gray-500">{m.l}</p><p className={`text-xl font-extrabold stat-value ${m.c}`}>{m.v}</p></div>
+                                        )}
+                                    </div>
+                                </div>
 
-                                            {/* J-Curve */}
-                                            <div className="glass rounded-xl p-5 border border-white/60">
-                                                <h4 className="text-sm font-bold text-slate-700 mb-3">Courbe en J — Cash-flow cumulé</h4>
-                                                {fo.jCurveData.length > 0 ? (
-                                                    <div className="bg-white p-3 rounded-lg">
-                                                        <svg viewBox="0 0 400 200" className="w-full h-44">
-                                                            {/* Zero line */}
-                                                            {(()=>{
-                                                                const data = fo.jCurveData;
-                                                                const vals = data.map(d=>d.cumulative);
-                                                                const minV = Math.min(...vals, 0);
-                                                                const maxV = Math.max(...vals, 0);
-                                                                const range = Math.max(maxV - minV, 1);
-                                                                const getY = v => 180 - ((v - minV) / range) * 170;
-                                                                const zeroY = getY(0);
-                                                                return <>
-                                                                    <line x1="0" y1={zeroY} x2="400" y2={zeroY} stroke="#94a3b8" strokeWidth="0.5" strokeDasharray="4"/>
-                                                                    <text x="5" y={zeroY - 5} fontSize="8" fill="#94a3b8">0 €</text>
-                                                                    <defs>
-                                                                        <linearGradient id="jGrad" x1="0" y1="0" x2="0" y2="1">
-                                                                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.3"/>
-                                                                            <stop offset="50%" stopColor="#e2e8f0" stopOpacity="0.1"/>
-                                                                            <stop offset="100%" stopColor="#ef4444" stopOpacity="0.3"/>
-                                                                        </linearGradient>
-                                                                    </defs>
-                                                                    <polygon points={`10,${zeroY} ${data.map((d,i)=>{const x=(i/(Math.max(data.length-1,1)))*380+10;return`${x},${getY(d.cumulative)}`;}).join(' ')} ${(data.length-1)/(Math.max(data.length-1,1))*380+10},${zeroY}`} fill="url(#jGrad)"/>
-                                                                    <polyline points={data.map((d,i)=>{const x=(i/(Math.max(data.length-1,1)))*380+10;return`${x},${getY(d.cumulative)}`;}).join(' ')} fill="none" stroke="#4338ca" strokeWidth="2.5" strokeLinecap="round"/>
-                                                                    {data.map((d,i)=>{const x=(i/(Math.max(data.length-1,1)))*380+10;const y=getY(d.cumulative);return<circle key={i} cx={x} cy={y} r="2.5" fill={d.cumulative>=0?'#10b981':'#ef4444'}/>})}
-                                                                    <text x="395" y={getY(vals[vals.length-1])-8} textAnchor="end" fontSize="9" fontWeight="bold" fill={vals[vals.length-1]>=0?'#10b981':'#ef4444'}>{fmt(vals[vals.length-1])} €</text>
-                                                                </>;
-                                                            })()}
-                                                        </svg>
-                                                    </div>
-                                                ) : <p className="text-slate-400 text-sm">Pas encore de données</p>}
-                                            </div>
+                                {/* Trends */}
+                                <div className="fo-section border-purple-400/50">
+                                    <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2"><TrendingUp size={18} className="text-purple-400"/>Prévisibilité & tendance</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div className="card rounded-xl p-5">
+                                            <h4 className="text-sm font-bold text-gray-300 mb-3">IRR par deal</h4>
+                                            {fo.irrByDeal.length > 0 ? <div className="space-y-2">{fo.irrByDeal.map((d,i)=>{const mx=Math.max(...fo.irrByDeal.map(x=>Math.abs(x.irr)),1);return(
+                                                <div key={i}><div className="flex justify-between text-xs mb-0.5"><span className="text-gray-400">#{d.index} {d.name}</span><span className={d.irr>=0?'text-green-400':'text-red-400'}>{fmtPct(d.irr)}</span></div><div className="w-full bg-white/5 rounded-full h-2"><div className={`h-2 rounded-full ${d.irr>=0?'bg-green-400':'bg-red-400'}`} style={{width:`${Math.abs(d.irr)/mx*100}%`,opacity:0.7}}/></div></div>
+                                            );})}</div> : <p className="text-gray-600 text-sm">Pas de ventes</p>}
                                         </div>
-                                    </div>
-
-                                    {/* ── 5. PIPELINE ── */}
-                                    <div className="fo-section border-amber-400">
-                                        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Target size={20} className="text-amber-500"/>Pipeline des ventes</h3>
-                                        {fo.pipeline.length > 0 ? (
-                                            <div className="glass rounded-xl border border-white/60 overflow-hidden">
-                                                <table className="w-full text-sm">
-                                                    <thead><tr className="bg-slate-50 border-b border-slate-200">
-                                                        {['Cheval','Vente prévue','Jours restants','Investi','Seuil rentabilité','Val. estimée'].map(h=><th key={h} className="text-left py-2.5 px-4 font-semibold text-slate-500 text-xs">{h}</th>)}
-                                                    </tr></thead>
-                                                    <tbody>
-                                                        {fo.pipeline.map(h => {
-                                                            const be = getBreakEvenPrice(h.totalInvested);
-                                                            return (
-                                                                <tr key={h.id} className="border-b border-slate-50 hover:bg-slate-50/50">
-                                                                    <td className="py-2.5 px-4 font-medium text-slate-800">{h.name}</td>
-                                                                    <td className="py-2.5 px-4 text-slate-600 text-xs">{formatDateFR(h.expectedSaleDate)}</td>
-                                                                    <td className={`py-2.5 px-4 font-medium text-xs ${h.daysLeft < 0 ? 'text-red-500' : h.daysLeft <= 30 ? 'text-amber-500' : 'text-emerald-600'}`}>{h.daysLeft < 0 ? `${Math.abs(h.daysLeft)}j en retard` : `${h.daysLeft}j`}</td>
-                                                                    <td className="py-2.5 px-4 text-slate-700">{fmt(h.totalInvested)} €</td>
-                                                                    <td className="py-2.5 px-4 text-indigo-600 font-medium">{fmt(be)} €</td>
-                                                                    <td className="py-2.5 px-4 text-slate-600">{h.estimatedValue > 0 ? `${fmt(h.estimatedValue)} €` : '—'}</td>
-                                                                </tr>
-                                                            );
-                                                        })}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        ) : <div className="glass rounded-xl p-8 border border-white/60 text-center"><p className="text-slate-400">Aucune vente prévisionnelle enregistrée</p><p className="text-xs text-slate-400 mt-1">Ajoutez des dates de vente prévisionnelle sur vos chevaux actifs</p></div>}
-                                    </div>
-
-                                    {/* ── 6. LIQUIDITÉ ── */}
-                                    <div className="fo-section border-emerald-400">
-                                        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Zap size={20} className="text-emerald-500"/>Liquidité & Velocity</h3>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                            <div className="metric-card bg-white rounded-xl p-4 border border-slate-200 shadow-sm text-center">
-                                                <Gauge value={getCapitalTurnover()} max={3} label="Cap. Turnover" size={90} />
-                                            </div>
-                                            {(()=>{const v=getVelocityOfDeals();return v ? <>
-                                                <div className="metric-card bg-white rounded-xl p-4 border border-slate-200 shadow-sm"><p className="text-xs text-slate-500">Holding moyen</p><p className="text-2xl font-extrabold stat-value text-indigo-600">{v.avgMonths.toFixed(1)} mois</p><p className="text-xs text-slate-400">{v.avgDays.toFixed(0)} jours</p></div>
-                                                <div className="metric-card bg-white rounded-xl p-4 border border-slate-200 shadow-sm"><p className="text-xs text-slate-500">Velocity</p><p className="text-2xl font-extrabold stat-value text-amber-600">{v.dealsPerYear.toFixed(1)}</p><p className="text-xs text-slate-400">deals / an (est.)</p></div>
-                                                <div className="metric-card bg-white rounded-xl p-4 border border-slate-200 shadow-sm"><p className="text-xs text-slate-500">Deals complétés</p><p className="text-2xl font-extrabold stat-value text-emerald-600">{v.count}</p><p className="text-xs text-slate-400">sur {horses.length} total</p></div>
-                                            </> : <div className="col-span-3 bg-slate-50 rounded-xl p-6 border border-slate-100 text-center"><p className="text-slate-400 text-sm">Enregistrez des ventes pour voir les métriques de liquidité</p></div>})()}
+                                        <div className="card rounded-xl p-5">
+                                            <h4 className="text-sm font-bold text-gray-300 mb-3">Courbe en J</h4>
+                                            {fo.jCurveData.length > 0 ? <div className="p-3 rounded-lg bg-black/30">
+                                                <svg viewBox="0 0 400 200" className="w-full h-44">
+                                                    {(()=>{const data=fo.jCurveData;const vals=data.map(d=>d.cumulative);const mn=Math.min(...vals,0);const mx=Math.max(...vals,0);const rng=Math.max(mx-mn,1);const gY=v=>180-((v-mn)/rng)*170;const zY=gY(0);return<><line x1="0" y1={zY} x2="400" y2={zY} stroke="rgba(255,255,255,0.1)" strokeWidth="0.5" strokeDasharray="4"/><defs><linearGradient id="jGradDark" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00e5a0" stopOpacity="0.2"/><stop offset="100%" stopColor="#ef4444" stopOpacity="0.1"/></linearGradient></defs><polygon points={`10,${zY} ${data.map((d,i)=>`${(i/(Math.max(data.length-1,1)))*380+10},${gY(d.cumulative)}`).join(' ')} ${(data.length-1)/(Math.max(data.length-1,1))*380+10},${zY}`} fill="url(#jGradDark)"/><polyline points={data.map((d,i)=>`${(i/(Math.max(data.length-1,1)))*380+10},${gY(d.cumulative)}`).join(' ')} fill="none" stroke="url(#lgDark)" strokeWidth="2" strokeLinecap="round"/>{data.map((d,i)=><circle key={i} cx={(i/(Math.max(data.length-1,1)))*380+10} cy={gY(d.cumulative)} r="2" fill={d.cumulative>=0?'#00e5a0':'#ef4444'}/>)}<text x="395" y={gY(vals[vals.length-1])-8} textAnchor="end" fontSize="9" fontWeight="bold" fill={vals[vals.length-1]>=0?'#00e5a0':'#ef4444'}>{fmt(vals[vals.length-1])} €</text></>;})()}
+                                                </svg>
+                                            </div> : <p className="text-gray-600 text-sm">Pas de données</p>}
                                         </div>
                                     </div>
                                 </div>
-                            );
-                        })()}
+
+                                {/* Pipeline */}
+                                <div className="fo-section border-amber-400/50">
+                                    <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2"><Target size={18} className="text-amber-400"/>Pipeline des ventes</h3>
+                                    {fo.pipeline.length > 0 ? (
+                                        <div className="card rounded-xl overflow-hidden"><table className="w-full text-sm"><thead><tr className="border-b border-white/5">{['Cheval','Vente prévue','Restant','Investi','Seuil','Estimée'].map(h=><th key={h} className="text-left py-2.5 px-4 text-gray-500 text-xs font-medium">{h}</th>)}</tr></thead>
+                                        <tbody>{fo.pipeline.map(h=>{const be=getBreakEvenPrice(h.totalInvested);return<tr key={h.id} className="border-b border-white/3"><td className="py-2.5 px-4 text-gray-200 font-medium">{h.name}</td><td className="py-2.5 px-4 text-gray-400 text-xs">{formatDateFR(h.expectedSaleDate)}</td><td className={`py-2.5 px-4 text-xs font-medium ${h.daysLeft<0?'text-red-400':h.daysLeft<=30?'text-amber-400':'text-green-400'}`}>{h.daysLeft<0?`${Math.abs(h.daysLeft)}j retard`:`${h.daysLeft}j`}</td><td className="py-2.5 px-4 text-gray-300">{fmt(h.totalInvested)} €</td><td className="py-2.5 px-4 text-cyan-400">{fmt(be)} €</td><td className="py-2.5 px-4 text-gray-400">{h.estimatedValue>0?`${fmt(h.estimatedValue)} €`:'—'}</td></tr>})}</tbody></table></div>
+                                    ) : <div className="card rounded-xl p-8 text-center"><p className="text-gray-600">Aucune vente prévisionnelle</p></div>}
+                                </div>
+
+                                {/* Liquidity */}
+                                <div className="fo-section border-green-400/50">
+                                    <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2"><Zap size={18} className="text-green-400"/>Liquidité & Velocity</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <div className="card rounded-xl p-4 text-center"><Gauge value={getCapitalTurnover()} max={3} label="Turnover" size={90}/></div>
+                                        {(()=>{const v=getVelocityOfDeals();return v ? [
+                                            {l:'Hold moyen',v:`${v.avgMonths.toFixed(1)}m`,c:'text-cyan-400'},{l:'Velocity',v:v.dealsPerYear.toFixed(1),s:'deals/an',c:'text-amber-400'},{l:'Complétés',v:`${v.count}/${horses.length}`,c:'text-green-400'}
+                                        ].map((m,i)=><div key={i} className="card rounded-xl p-4"><p className="text-xs text-gray-500">{m.l}</p><p className={`text-2xl font-extrabold stat-value ${m.c}`}>{m.v}</p>{m.s&&<p className="text-xs text-gray-600">{m.s}</p>}</div>) : <div className="col-span-3 card-inner rounded-xl p-6 text-center"><p className="text-gray-600 text-sm">Enregistrez des ventes</p></div>})()}
+                                    </div>
+                                </div>
+                            </div>
+                        );})()}
                     </div>
                 </div>
             );
