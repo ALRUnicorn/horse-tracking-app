@@ -93,8 +93,27 @@
             const [horseName, setHorseName] = useState('');
             const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
             const [expenseName, setExpenseName] = useState('');
+            const [expenseCategory, setExpenseCategory] = useState('pension');
             const [expenseAmount, setExpenseAmount] = useState('');
             const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split('T')[0]);
+
+            // ═══ EXPENSE CATEGORIES ═══
+            const EXPENSE_CATEGORIES = {
+                pension:      { label: 'Pension',              type: 'OPEX',  color: '#64748b', icon: '🏠' },
+                farrier:      { label: 'Maréchalerie',         type: 'OPEX',  color: '#78716c', icon: '🔨' },
+                vet_routine:  { label: 'Véto (routine)',       type: 'OPEX',  color: '#0891b2', icon: '💉' },
+                competition:  { label: 'Compétition',          type: 'OPEX',  color: '#7c3aed', icon: '🏆' },
+                transport:    { label: 'Transport',            type: 'OPEX',  color: '#d97706', icon: '🚛' },
+                insurance:    { label: 'Assurance',            type: 'OPEX',  color: '#475569', icon: '🛡️' },
+                equipment:    { label: 'Équipement',           type: 'OPEX',  color: '#9333ea', icon: '🎠' },
+                vet_prevent:  { label: 'Thérapie préventive',  type: 'CAPEX', color: '#00e5a0', icon: '🧬' },
+                imaging:      { label: 'Imagerie / Bilan',     type: 'CAPEX', color: '#06b6d4', icon: '📊' },
+                regen:        { label: 'Médecine régénérative',type: 'CAPEX', color: '#10b981', icon: '🔬' },
+                training:     { label: 'Entraînement spé.',    type: 'CAPEX', color: '#8b5cf6', icon: '🎯' },
+                purchase:     { label: 'Achat / Acquisition',  type: 'CAPEX', color: '#f59e0b', icon: '💰' },
+                other:        { label: 'Autre',                type: 'OPEX',  color: '#6b7280', icon: '📋' },
+            };
+            const getCatInfo = (catKey) => EXPENSE_CATEGORIES[catKey] || EXPENSE_CATEGORIES.other;
             const [commission, setCommission] = useState(10);
             const [customPrice, setCustomPrice] = useState('');
             const [activeView, setActiveView] = useState('horses');
@@ -112,7 +131,7 @@
             const addHorse = () => { if (!horseName.trim()) return; setHorses([...horses, { id: Date.now(), name: horseName, purchaseDate, expectedSaleDate: '', actualSaleDate: '', actualSalePrice: '', status: 'active', expenses: [] }]); setHorseName(''); setPurchaseDate(new Date().toISOString().split('T')[0]); };
             const updateHorseField = (horseId, field, value) => { setHorses(horses.map(h => { if (h.id !== horseId) return h; const u = { ...h, [field]: value }; if (field === 'actualSaleDate') u.status = value ? 'sold' : 'active'; return u; })); setEditingField(null); };
             const deleteHorse = (id) => { setHorses(horses.filter(h => h.id !== id)); if (selectedHorseId === id) setSelectedHorseId(null); };
-            const addExpense = () => { if (!expenseName.trim() || !expenseAmount || !selectedHorse) return; setHorses(horses.map(h => h.id === selectedHorse.id ? { ...h, expenses: [...h.expenses, { id: Date.now(), name: expenseName, amount: parseFloat(expenseAmount), date: expenseDate }] } : h)); setExpenseName(''); setExpenseAmount(''); setExpenseDate(new Date().toISOString().split('T')[0]); };
+            const addExpense = () => { if (!expenseAmount || !selectedHorse) return; const cat = getCatInfo(expenseCategory); setHorses(horses.map(h => h.id === selectedHorse.id ? { ...h, expenses: [...h.expenses, { id: Date.now(), name: expenseName.trim() || cat.label, category: expenseCategory, type: cat.type, amount: parseFloat(expenseAmount), date: expenseDate }] } : h)); setExpenseName(''); setExpenseAmount(''); setExpenseCategory('pension'); setExpenseDate(new Date().toISOString().split('T')[0]); };
             const deleteExpense = (eid) => { setHorses(horses.map(h => h.id === selectedHorse.id ? { ...h, expenses: h.expenses.filter(e => e.id !== eid) } : h)); };
 
             // ═══ CALCULATIONS ═══
@@ -166,7 +185,9 @@
             };
 
             // ═══ HELPERS ═══
-            const getCategoryBreakdown = (h) => { const c = {}; h.expenses.forEach(e => { c[e.name] = (c[e.name]||0) + e.amount; }); return Object.entries(c).map(([n,a])=>({name:n,amount:a})).sort((a,b)=>b.amount-a.amount); };
+            const getCategoryBreakdown = (h) => { const c = {}; h.expenses.forEach(e => { const key = e.category || 'other'; const info = getCatInfo(key); const label = info.label; c[label] = c[label] || { amount: 0, type: info.type, color: info.color, icon: info.icon }; c[label].amount += e.amount; }); return Object.entries(c).map(([name,d])=>({name, ...d})).sort((a,b)=>b.amount-a.amount); };
+            const getOpexCapex = (h) => { let opex = 0, capex = 0; h.expenses.forEach(e => { const info = getCatInfo(e.category || 'other'); if (info.type === 'CAPEX') capex += e.amount; else opex += e.amount; }); const total = opex + capex; return { opex, capex, total, opexPct: total > 0 ? (opex/total)*100 : 0, capexPct: total > 0 ? (capex/total)*100 : 0 }; };
+            const getPortfolioOpexCapex = () => { let opex = 0, capex = 0; horses.forEach(h => { const oc = getOpexCapex(h); opex += oc.opex; capex += oc.capex; }); const total = opex + capex; return { opex, capex, total, opexPct: total > 0 ? (opex/total)*100 : 0, capexPct: total > 0 ? (capex/total)*100 : 0 }; };
             const getMonthlyExpenses = (h) => { const m = {}; h.expenses.forEach(e => { const d = new Date(e.date||Date.now()); const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; m[k] = (m[k]||0)+e.amount; }); return Object.entries(m).sort(([a],[b])=>a.localeCompare(b)).map(([mo,am])=>({month:mo,amount:am})); };
             const getMonthlyAverage = (h) => { const m = getMonthlyExpenses(h); return m.length === 0 ? 0 : m.reduce((s,x)=>s+x.amount,0)/m.length; };
             const formatMonthLabel = (mk) => { const [y,m] = mk.split('-'); return new Date(y,parseInt(m)-1).toLocaleDateString('fr-FR',{month:'short',year:'2-digit'}); };
@@ -283,19 +304,36 @@
                                         <>
                                             <div className="mb-4 space-y-2">
                                                 <div className="flex gap-2">
-                                                    <input type="text" placeholder="Catégorie" value={expenseName} onChange={e=>setExpenseName(e.target.value)} className="input-dark flex-1 px-3 py-2 rounded-lg text-sm"/>
+                                                    <select value={expenseCategory} onChange={e=>setExpenseCategory(e.target.value)} className="input-dark flex-1 px-3 py-2 rounded-lg text-sm">
+                                                        <optgroup label="OPEX — Exploitation">
+                                                            {Object.entries(EXPENSE_CATEGORIES).filter(([,v])=>v.type==='OPEX').map(([k,v])=><option key={k} value={k}>{v.icon} {v.label}</option>)}
+                                                        </optgroup>
+                                                        <optgroup label="CAPEX — Investissement">
+                                                            {Object.entries(EXPENSE_CATEGORIES).filter(([,v])=>v.type==='CAPEX').map(([k,v])=><option key={k} value={k}>{v.icon} {v.label}</option>)}
+                                                        </optgroup>
+                                                    </select>
                                                     <input type="number" placeholder="€" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} className="input-dark w-24 px-3 py-2 rounded-lg text-sm"/>
                                                 </div>
+                                                <input type="text" placeholder="Note (optionnel)" value={expenseName} onChange={e=>setExpenseName(e.target.value)} className="input-dark w-full px-3 py-2 rounded-lg text-sm"/>
                                                 <input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)} className="input-dark w-full px-3 py-2 rounded-lg text-sm"/>
                                                 <button onClick={addExpense} className="w-full bg-green-500/20 text-green-400 border border-green-500/30 py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 hover:bg-green-500/30 transition"><Plus size={14}/>Ajouter une dépense</button>
                                             </div>
                                             <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
-                                                {selectedHorse.expenses.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(exp=>(
+                                                {selectedHorse.expenses.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(exp=>{const ci=getCatInfo(exp.category||'other');return(
                                                     <div key={exp.id} className="flex justify-between items-center p-3 card-inner rounded-lg">
-                                                        <div><p className="font-medium text-gray-200 text-sm">{exp.name}</p><p className="text-xs text-gray-500">{formatDateFR(exp.date)}</p></div>
+                                                        <div className="flex items-center gap-2.5">
+                                                            <span className="text-base">{ci.icon}</span>
+                                                            <div>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <p className="font-medium text-gray-200 text-sm">{exp.name || ci.label}</p>
+                                                                    <span className={`text-xs px-1.5 py-0 rounded font-semibold ${ci.type==='CAPEX'?'bg-cyan-400/15 text-cyan-400':'bg-gray-500/15 text-gray-400'}`}>{ci.type}</span>
+                                                                </div>
+                                                                <p className="text-xs text-gray-500">{formatDateFR(exp.date)}</p>
+                                                            </div>
+                                                        </div>
                                                         <div className="flex items-center gap-2"><span className="text-sm font-semibold text-gray-300">{fmt(exp.amount)} €</span><button onClick={()=>deleteExpense(exp.id)} className="text-gray-600 hover:text-red-400 transition"><Trash2 size={13}/></button></div>
                                                     </div>
-                                                ))}
+                                                );})}
                                             </div>
                                             <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-lg font-bold"><span className="text-gray-400">Total</span><span className="gradient-text">{fmt(getTotalExpenses(selectedHorse))} €</span></div>
                                         </>
@@ -321,9 +359,26 @@
                                                 ) : <p className="text-gray-600 text-center py-6 text-sm">Pas encore de données</p>}
                                             </div>
                                             <div className="card-inner rounded-xl p-4">
-                                                <h3 className="font-bold text-gray-300 mb-3 text-sm">Répartition</h3>
+                                                <h3 className="font-bold text-gray-300 mb-3 text-sm">OPEX vs CAPEX</h3>
+                                                {(()=>{ const oc = getOpexCapex(selectedHorse); if (oc.total === 0) return <p className="text-gray-600 text-sm text-center py-4">Pas de données</p>; return <>
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <div className="flex-1">
+                                                            <div className="w-full bg-white/5 rounded-full h-4 flex overflow-hidden">
+                                                                <div className="h-4 bg-gray-500 transition-all" style={{width:`${oc.opexPct}%`}}/>
+                                                                <div className="h-4 bg-cyan-400 transition-all" style={{width:`${oc.capexPct}%`}}/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-2 mb-3">
+                                                        <div className="card-inner p-2.5 rounded-lg flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-gray-500"/><div><p className="text-xs text-gray-500">OPEX</p><p className="text-sm font-bold text-gray-300">{fmt(oc.opex)} € <span className="text-xs text-gray-500">({oc.opexPct.toFixed(0)}%)</span></p></div></div>
+                                                        <div className="card-inner p-2.5 rounded-lg flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-cyan-400"/><div><p className="text-xs text-gray-500">CAPEX</p><p className="text-sm font-bold text-cyan-400">{fmt(oc.capex)} € <span className="text-xs text-gray-500">({oc.capexPct.toFixed(0)}%)</span></p></div></div>
+                                                    </div>
+                                                </>; })()}
+                                            </div>
+                                            <div className="card-inner rounded-xl p-4">
+                                                <h3 className="font-bold text-gray-300 mb-3 text-sm">Répartition détaillée</h3>
                                                 <div className="space-y-2">{getCategoryBreakdown(selectedHorse).map((cat,i)=>{const pct=(cat.amount/getTotalExpenses(selectedHorse))*100;return(
-                                                    <div key={cat.name}><div className="flex justify-between text-xs mb-0.5"><span className="text-gray-400">{cat.name}</span><span className="text-gray-500">{fmt(cat.amount)} € ({pct.toFixed(0)}%)</span></div><div className="w-full bg-white/5 rounded-full h-1.5"><div className="h-1.5 rounded-full transition-all" style={{width:`${pct}%`,backgroundColor:getColorForIndex(i)}}/></div></div>
+                                                    <div key={cat.name}><div className="flex justify-between text-xs mb-0.5"><span className="text-gray-400 flex items-center gap-1.5"><span>{cat.icon}</span>{cat.name}<span className={`px-1 rounded text-xs ${cat.type==='CAPEX'?'bg-cyan-400/15 text-cyan-400':'bg-gray-500/15 text-gray-500'}`}>{cat.type}</span></span><span className="text-gray-500">{fmt(cat.amount)} € ({pct.toFixed(0)}%)</span></div><div className="w-full bg-white/5 rounded-full h-1.5"><div className="h-1.5 rounded-full transition-all" style={{width:`${pct}%`,backgroundColor:cat.color}}/></div></div>
                                                 );})}</div>
                                             </div>
                                         </div>
@@ -443,11 +498,45 @@
                                 {/* Operational */}
                                 <div className="fo-section border-cyan-400/50">
                                     <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2"><Activity size={18} className="text-cyan-400"/>Efficacité opérationnelle</h3>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                                         {[{l:'Coût moy./cheval/mois',v:`${fmt(fo.avgMonthlyCost)} €`,c:'text-cyan-400'},{l:'Marge nette',v:`${fo.netMargin.toFixed(1)}%`,c:'text-purple-400'},{l:'Commissions totales',v:`${fmt(fo.totalCommissions)} €`,c:'text-gray-300'},{l:'Temps au break-even',v:`${fo.avgBreakEvenMonths.toFixed(1)} mois`,c:'text-green-400'}].map((m,i)=>
                                             <div key={i} className="card rounded-xl p-4"><p className="text-xs text-gray-500">{m.l}</p><p className={`text-xl font-extrabold stat-value ${m.c}`}>{m.v}</p></div>
                                         )}
                                     </div>
+                                    {/* OPEX vs CAPEX Portfolio */}
+                                    {(()=>{ const oc = getPortfolioOpexCapex(); if (oc.total === 0) return null; return (
+                                        <div className="card rounded-xl p-5">
+                                            <h4 className="text-sm font-bold text-gray-300 mb-3">Structure de coûts — OPEX vs CAPEX</h4>
+                                            <div className="flex items-center gap-4 mb-4">
+                                                <div className="flex-1">
+                                                    <div className="w-full bg-white/5 rounded-full h-5 flex overflow-hidden">
+                                                        <div className="h-5 bg-gray-500 flex items-center justify-center transition-all" style={{width:`${oc.opexPct}%`}}>{oc.opexPct > 15 && <span className="text-xs font-semibold text-white">{oc.opexPct.toFixed(0)}%</span>}</div>
+                                                        <div className="h-5 bg-cyan-400 flex items-center justify-center transition-all" style={{width:`${oc.capexPct}%`}}>{oc.capexPct > 15 && <span className="text-xs font-semibold text-black">{oc.capexPct.toFixed(0)}%</span>}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                <div className="card-inner rounded-xl p-3 text-center"><div className="flex items-center justify-center gap-1.5 mb-1"><div className="w-2 h-2 rounded-full bg-gray-500"/><p className="text-xs text-gray-500">OPEX (Exploitation)</p></div><p className="text-lg font-extrabold text-gray-300 stat-value">{fmt(oc.opex)} €</p></div>
+                                                <div className="card-inner rounded-xl p-3 text-center"><div className="flex items-center justify-center gap-1.5 mb-1"><div className="w-2 h-2 rounded-full bg-cyan-400"/><p className="text-xs text-gray-500">CAPEX (Invest. préventif)</p></div><p className="text-lg font-extrabold text-cyan-400 stat-value">{fmt(oc.capex)} €</p></div>
+                                                <div className="card-inner rounded-xl p-3 text-center"><p className="text-xs text-gray-500 mb-1">Ratio CAPEX / Total</p><p className="text-lg font-extrabold stat-value gradient-text">{oc.capexPct.toFixed(1)}%</p><p className="text-xs text-gray-600 mt-0.5">{oc.capexPct >= 20 ? 'Stratégie préventive forte' : oc.capexPct >= 10 ? 'Équilibré' : 'Axé exploitation'}</p></div>
+                                            </div>
+                                            {/* Per horse OPEX/CAPEX breakdown */}
+                                            {horses.length > 0 && (
+                                                <div className="mt-4 space-y-2">
+                                                    <p className="text-xs text-gray-500 font-medium">Par cheval</p>
+                                                    {horses.map(h => { const hoc = getOpexCapex(h); if (hoc.total === 0) return null; return (
+                                                        <div key={h.id}>
+                                                            <div className="flex justify-between text-xs mb-0.5"><span className="text-gray-400">{h.name}</span><span className="text-gray-500">CAPEX: {hoc.capexPct.toFixed(0)}%</span></div>
+                                                            <div className="w-full bg-white/5 rounded-full h-2 flex overflow-hidden">
+                                                                <div className="h-2 bg-gray-500/70" style={{width:`${hoc.opexPct}%`}}/>
+                                                                <div className="h-2 bg-cyan-400" style={{width:`${hoc.capexPct}%`}}/>
+                                                            </div>
+                                                        </div>
+                                                    ); })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ); })()}
                                 </div>
 
                                 {/* Trends */}
